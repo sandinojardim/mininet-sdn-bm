@@ -31,6 +31,6 @@ def generate_network(num_hosts, topology, host_links):
 if __name__ == '__main__':
     num_hosts = 4
     topology = [[2], [1, 3], [2], [2]]
-    host_links = [[2, 1], [], [], [2, 2]]
+    host_links = [[2, 1], [1,1], [3,1], [4, 1]]
     generate_network(num_hosts, topology, host_links)
 
