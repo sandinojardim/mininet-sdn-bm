@@ -1,14 +1,17 @@
+from mininet.cli import CLI
 from mininet.net import Mininet
 from mininet.node import Controller, OVSSwitch, RemoteController
 from mininet.link import TCLink
 
 def generate_network(num_hosts, topology, host_links):
-    net = Mininet(controller=RemoteController, switch=OVSSwitch, link=TCLink)
-    net.addController('c0', ip='127.0.0.1', port=6633)
+    net = Mininet(controller=RemoteController, switch=OVSSwitch)
+    
+    
+    #net.addController('c0', ip='127.0.0.1', port=6633)
 
     switches = []
     for i in range(len(topology)):
-        switch = net.addSwitch('s{}'.format(i+1))
+        switch = net.addSwitch('s{}'.format(i+1),protocols='OpenFlow13')
         switches.append(switch)
 
     for i in range(num_hosts):
@@ -23,14 +26,18 @@ def generate_network(num_hosts, topology, host_links):
             if neighbor <= len(topology):
                 neighbor_switch = switches[neighbor - 1]
                 net.addLink(switch, neighbor_switch)
-
+    
+    c0 = net.addController('c0', controller=RemoteController, ip='172.17.0.2', port=6633)
+    
     net.start()
+    CLI(net)
+    
     net.pingAll()
     net.stop()
 
 if __name__ == '__main__':
-    num_hosts = 4
-    topology = [[2], [1, 3], [2], [2]]
-    host_links = [[2, 1], [1,1], [3,1], [4, 1]]
+    topology = [[2, 6], [1, 3], [2, 4], [3, 5], [4, 6], [1, 5]]
+    host_links = [[1, 1], [1, 2], [2, 1], [3, 1], [3, 2], [6, 2]]
+    num_hosts = len(host_links)
     generate_network(num_hosts, topology, host_links)
 
