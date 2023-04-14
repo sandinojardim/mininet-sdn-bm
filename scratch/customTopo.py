@@ -17,7 +17,7 @@ def create_topology(net, topology):
     hosts = []
 
     # Create switches
-    switches = [net.addSwitch('s{}'.format(i), cls=OVSSwitch) for i in range(len(topology))]
+    switches = [net.addSwitch('s{}'.format(i), protocols='OpenFlow13') for i in range(len(topology))]
 
     # Create hosts
     for i in range(len(topology)):
@@ -29,11 +29,22 @@ def create_topology(net, topology):
 
         # Connect switch to other switches
         for j in topology[i]:
-            net.addLink(switches[i], switches[j-1])
+            net.addLink(switches[i], switches[j-1], intfName1='s{}-eth{}'.format(i, j), intfName2='s{}-eth{}'.format(j-1, i+1))
 
     return hosts
 
+def generate_topology(num_switches, topology_type, topology_parameters):
+    if topology_type == 'star':
+        hub_switch = topology_parameters[0]
+        connections = [[] for _ in range(num_switches)]
+        for i in range(1, num_switches+1):
+            if i != hub_switch:
+                connections[i-1].append(hub_switch)
+                #connections[hub_switch-1].append(i) #if bidirectional links
+        
+        return connections
 
+#"old" version
 def get_topology(num_switches, topology_type):
     """
     Returns a list of lists specifying the network topology based on the given parameters.
@@ -67,13 +78,13 @@ if __name__ == '__main__':
 
     # Default parameters
     num_switches = 4
-    topology_type = 'leaf-spine topology'
-
-    # Create network topology
-    topology = get_topology(num_switches, topology_type)
+    topology_type = 'star'
 
     # Create Mininet object
     net = Mininet(controller=partial(RemoteController, ip='172.17.0.2', port=6633), autoSetMacs=True)
+
+    # Create network topology
+    topology = generate_topology(num_switches, topology_type,[3])
 
     # Add switches and hosts to network
     hosts = create_topology(net, topology)
