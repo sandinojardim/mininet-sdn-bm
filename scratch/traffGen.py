@@ -1,44 +1,55 @@
 #!/usr/bin/python
 
 from mininet.net import Mininet
-from mininet.node import Host, RemoteController
-from mininet.link import TCLink
-from mininet.cli import CLI
+from mininet.node import RemoteController
+import time
+
+
+def list_and_capture(host, filename):
+    host.cmd('nc -lk 5000 &')
+    host.cmd('tcpdump -w {} &'.format(filename))
+    time.sleep(1)
+def stop_server(host):
+    host.cmd('kill %nc')
+    host.cmd('kill %tcpdump')
+
+def stop_process(host, process_name):
+    process = host.popen('pgrep {}'.format(process_name))
+    pid = process.stdout.read().decode('utf-8').strip()
+    process.terminate()
+    process.wait()
+    host.cmd('kill -9 {}'.format(pid))
 
 def run_sourcesonoff():
-    h1, h2 = net.get('h1', 'h2')
+    h1, h2= net.get('h1', 'h2')
 
     # configure h1 as the transmitter and h2 as the receiver
     tx_host, rx_host = h1.IP(), h2.IP()
 
-    # create the sourcesonoff command
-    cmd_cpt = 'tcpdump -i eth0 -w capture.pcap'
+    
+    cmd = 'sourcesonoff -v -t -d {} --port-number 5000 --doff-type=weibull --don-min=10 --don-max=1000 --doff-min=1s --doff-max=2s --turn 3 > log_trf.txt'.format(rx_host)
 
-    h2.cmd(cmd_cpt)
-
-    cmd = 'sourcesonoff --verbose --transmitter-udp -d {} --don-type=constant --don-max=61 --doff-type=constant --doff-max=312us'.format(rx_host)
-
-    # start the sourcesonoff command on the transmitter host
+    # start the sourcesonoff traffic generator command on the transmitter host
     h1.cmd(cmd)
 
+
 if __name__ == '__main__':
-    net = Mininet(topo=None, link=TCLink, controller=RemoteController)
+    net = Mininet(topo=None, controller=RemoteController)
 
     # create two hosts
     h1 = net.addHost('h1')
     h2 = net.addHost('h2')
 
-    # create a link with 100Mbps and 10ms of delay
-    net.addLink(h1, h2, bw=100, delay='10ms')
+    net.addLink(h1, h2)
 
     # start the network
     net.start()
+    
 
-    # run sourcesonoff
+    current_time = time.strftime("%H%M%S")
+    filename = "capture_" + current_time + ".pcap"
+    list_and_capture(h2,filename)
     run_sourcesonoff()
-
-    # start the CLI to interact with the network
-    CLI(net)
-
-    # stop the network
+    stop_process(h2,'tcpdump')
+    stop_process(h2,'nc')
     net.stop()
