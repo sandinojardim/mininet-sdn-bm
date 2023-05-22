@@ -108,16 +108,16 @@ def generate_network(topology, num_switches, client_links, server_links):
                 neighbor_switch = switches[neighbor - 1]
                 net.addLink(switch, neighbor_switch)
     
-    c0 = net.addController('c0', controller=RemoteController, ip='localhost', port=6633)
+    c0 = net.addController('c0', controller=RemoteController, ip='10.3.3.158', port=6653)
     
     return clients, servers, c0
 
 
 
 if __name__ == '__main__':
-    topology, num_sw = generate_topology('3-tier',[1,2,3])
+    topology, num_sw = generate_topology('3-tier',[1,2,2])
     client_links = [[1, 1], [1,2]]
-    server_links = [[6,1]]
+    server_links = [[5,1]]
     cl, srv, ctrl = generate_network(topology, num_sw, client_links, server_links)
 
     net.start()
