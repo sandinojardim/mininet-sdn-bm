@@ -1,0 +1,127 @@
+import argparse
+import requests
+import time
+from scapy.all import *
+from scapy.contrib.openflow import OFPTFeaturesRequest, OFPTFeaturesReply, OFPTPacketIn
+
+QUERY_INTERVAL = 3
+
+def get_topology(controller,CONTROLLER_IP, REST_PORT):
+    if controller == 'onos':
+        url = f'http://{CONTROLLER_IP}:{REST_PORT}/onos/v1/topology'
+        headers = {'Accept': 'application/json'}
+        response = requests.get(url, headers=headers,auth=('onos','rocks'))
+        response_data = response.json()
+        print(response_data)
+        # Extract the topology information from the response
+        topology = response_data['devices']
+        return topology
+    elif controller == 'floodlight':
+        url = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                switches = response.json()
+                return len(switches)
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
+    elif controller == 'odl':
+        url = f'http://{CONTROLLER_IP}:{REST_PORT}/restconf/operational/opendaylight-inventory:nodes'
+        headers = {
+            'Accept': 'application/json',
+        }
+        auth = ('admin', 'admin')
+        try:
+            response = requests.get(url,headers=headers,auth=auth)
+            if response.status_code == 200:
+                data = response.json()
+                if 'node' in data['nodes']:
+                    nodes = data['nodes']['node']
+                    return len(nodes)
+                else:
+                    return 0
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
+
+
+def compare_topology(topology, len_topology):
+    # Check if the topology matches the deployed topology
+    if topology == len_topology:
+        return True
+    else:
+        return False
+
+def calculate_topology_discovery_time(start_time, end_time):
+    topology_discovery_time = end_time - start_time
+    return topology_discovery_time
+
+# Record the time for the first LLDP packet received at the controller
+start_time = None
+
+def is_ofpt_features_reply(packet):
+    global start_time
+    while packet.payload:
+        x = packet.payload
+        #print(x.summary())
+        if 'OFPTFeaturesReply' in x.summary():
+            start_time = time.time()
+            return True
+        packet = x
+    return False
+
+
+def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_port):
+    # Record the time for the first discovery message received at the controller
+    print("Waiting for the first OFPTFeaturesReply message...")
+    #print(f"ether dst {CONTROLLER_IP}")
+    res = sniff(iface=f'{args.iface}',filter=f'tcp and dst port {args.controller_port}',stop_filter=is_ofpt_features_reply)
+    #res.summary()
+
+    # Query the controller every t=3 seconds to obtain the discovered network topology information
+    consecutive_failures = 0
+    while True:
+        topology = get_topology(controller,ctrl_ip, rest_port)
+        
+        # Compare the discovered topology information with the deployed topology information
+        topology_match = compare_topology(topology, len_topology)
+        if topology_match:
+            # Record the time for the last discovery message sent to the controller
+            end_time = time.time()
+            print(f'End time: {end_time}')
+            break
+        else:
+            consecutive_failures += 1
+            if consecutive_failures >= 3:
+                print('Topology discovery failed')
+                break
+
+        time.sleep(QUERY_INTERVAL)
+
+    # Calculate the topology discovery time
+    if topology_match:
+        topology_discovery_time = calculate_topology_discovery_time(start_time, end_time)
+        print(f'Topology discovery time: {topology_discovery_time} seconds')
+
+if __name__ == '__main__':
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser(description='RFC8456 SDN Benchmarking - Topology Discovery.')
+
+    # Add arguments for controller IP, username, and password
+    parser.add_argument('controller_ip', help='Controller IP address', default='localhost')
+    parser.add_argument('controller_port', help='Controller port number',default=6653)
+    parser.add_argument('controller_name', help='Controller name')
+    parser.add_argument('rest_port', help='REST API port number',default=8181)
+    parser.add_argument('target_length', help='Target Topology Length',type=int)
+    parser.add_argument('iface', help='Interface to listen',default='lo')
+    
+
+    # Parse the command line arguments
+    args = parser.parse_args()
+    RFC8456_net_topology_discovery_time(args.target_length,
+                                        args.controller_name,
+                                        args.controller_ip,
+                                        args.rest_port)
