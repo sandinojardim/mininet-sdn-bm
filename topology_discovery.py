@@ -3,7 +3,6 @@ import requests
 import time
 from scapy.all import *
 from scapy.contrib.openflow import OFPTFeaturesRequest, OFPTFeaturesReply, OFPTPacketIn
-sys.path.append('../')
 from arguments_parser import parser
 
 
@@ -117,7 +116,7 @@ if __name__ == '__main__':
     args = parser('topology')
 
     # Check if the file exists
-    if not os.path.isfile('topo_disc_'+args.controller_name+'.txt'):
+    if not os.path.isfile('output/topo_disc_'+args.controller_name+'.txt'):
         # Create the file
         with open('output/topo_disc_'+args.controller_name+'.txt', 'w') as f:
             pass
