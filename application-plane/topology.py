@@ -3,8 +3,10 @@ import requests
 import time
 from scapy.all import *
 from scapy.contrib.openflow import OFPTFeaturesRequest, OFPTFeaturesReply, OFPTPacketIn
+from arguments_parser import parser
 
-QUERY_INTERVAL = 3
+
+QUERY_INTERVAL = 1
 
 def get_topology(controller,CONTROLLER_IP, REST_PORT):
     if controller == 'onos':
@@ -12,7 +14,7 @@ def get_topology(controller,CONTROLLER_IP, REST_PORT):
         headers = {'Accept': 'application/json'}
         response = requests.get(url, headers=headers,auth=('onos','rocks'))
         response_data = response.json()
-        print(response_data)
+        #print(response_data)
         # Extract the topology information from the response
         topology = response_data['devices']
         return topology
@@ -96,7 +98,8 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
         else:
             consecutive_failures += 1
             if consecutive_failures >= 3:
-                print('Topology discovery failed')
+                with open('output/topo_disc_'+controller+'.txt', 'a') as f:
+                    f.write("-1.0\n") #flag for script stop
                 break
 
         time.sleep(QUERY_INTERVAL)
@@ -104,23 +107,20 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
     # Calculate the topology discovery time
     if topology_match:
         topology_discovery_time = calculate_topology_discovery_time(start_time, end_time)
-        print(f'Topology discovery time: {topology_discovery_time} seconds')
+        with open('output/topo_disc_'+controller+'.txt', 'a') as f:
+            f.write(f"{topology_discovery_time}\n")
 
 if __name__ == '__main__':
-    # Create an ArgumentParser object
-    parser = argparse.ArgumentParser(description='RFC8456 SDN Benchmarking - Topology Discovery.')
-
-    # Add arguments for controller IP, username, and password
-    parser.add_argument('controller_ip', help='Controller IP address', default='localhost')
-    parser.add_argument('controller_port', help='Controller port number',default=6653)
-    parser.add_argument('controller_name', help='Controller name')
-    parser.add_argument('rest_port', help='REST API port number',default=8181)
-    parser.add_argument('target_length', help='Target Topology Length',type=int)
-    parser.add_argument('iface', help='Interface to listen',default='lo')
-    
 
     # Parse the command line arguments
-    args = parser.parse_args()
+    args = parser('topology')
+
+    # Check if the file exists
+    if not os.path.isfile('topo_disc_'+args.controller_name+'.txt'):
+        # Create the file
+        with open('output/topo_disc_'+args.controller_name+'.txt', 'w') as f:
+            pass
+
     RFC8456_net_topology_discovery_time(args.target_length,
                                         args.controller_name,
                                         args.controller_ip,

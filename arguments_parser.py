@@ -8,7 +8,7 @@ def parser(program):
         parser.add_argument('controller_port', help='Controller port number',default=6653)
         parser.add_argument('controller_name', help='Controller name')
         parser.add_argument('rest_port', help='REST API port number',default=8181)
-        parser.add_argument('target_length', help='Target Topology Length',type=int)
+        #parser.add_argument('target_length', help='Target Topology Length',type=int)
         parser.add_argument('iface', help='Interface to listen',default='lo')
         parser.add_argument('--topology', choices=['3-tier', 'star', 'mesh', 'leaf-spine'], help='Topology type')
         parser.add_argument('--num-cores', type=int, help='Number of core switches (for 3-tier topology)')
