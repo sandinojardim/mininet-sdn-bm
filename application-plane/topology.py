@@ -1,8 +1,9 @@
-import argparse
+import sys
 import requests
 import time
 from scapy.all import *
 from scapy.contrib.openflow import OFPTFeaturesRequest, OFPTFeaturesReply, OFPTPacketIn
+sys.path.append('../')
 from arguments_parser import parser
 
 
