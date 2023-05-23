@@ -6,7 +6,7 @@ from arguments_parser import parser
 
 
 def run_topology_discovery(controller_name, controller_ip, controller_port, rest_port, target_length, iface):
-    cmd = ['python3', 'application-plane/topology.py', controller_ip, controller_port, controller_name, rest_port, str(target_length),iface]
+    cmd = ['python3', 'topology_discovery.py', controller_ip, controller_port, controller_name, rest_port, str(target_length),iface]
     return subprocess.Popen(cmd,stdout=subprocess.PIPE)
 
 def run_workload_simulation(controller_ip, controller_port,topology_type, topology_parameters):
