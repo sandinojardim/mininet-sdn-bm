@@ -12,6 +12,7 @@ def run_topology_discovery(controller_name, controller_ip, controller_port, rest
 def run_workload_simulation(controller_ip, controller_port,topology_type, topology_parameters):
     if topology_type == 'leaf-spine':
         cmd = ['python3', 'workload.py',controller_ip, controller_port,'--topology',topology_type, '--num-leafs', f'{topology_parameters[0]}', '--num-spines', f'{topology_parameters[1]}']
+        print(cmd)
         return subprocess.Popen(cmd,stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
 def write_to_csv(filename, data):
@@ -25,18 +26,17 @@ if __name__ == '__main__':
     
     data = []
     running = True
+    i = 10
     while running:
         tdt_sum = 0
-        i = 10
         target_length = i + (i * 2)
         print('Running for topo_lenght = {}'.format(target_length))
         for j in range(1, 11):
             print('running topology.py')
             topology_proc = run_topology_discovery(args.controller_name,args.controller_ip,args.controller_port,args.rest_port,(i + i * 2),args.iface)
-            time.sleep(5)
+            time.sleep(3)
             print('running workload.py')
             run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, [i, i * 2])
-
             # Wait for topology.py to finish execution
             topology_proc.wait()  # Wait for topology.py to finish
             print('finished topology.py')
@@ -54,10 +54,12 @@ if __name__ == '__main__':
             with open('output/topo_disc_'+args.controller_name+'.txt', 'r') as f:
                 lines = f.readlines()
                 topology_discovery_time = float(lines[-1].strip())
-                if topology_discovery_time > 0.0:
+                print(topology_discovery_time)
+                if topology_discovery_time != -1.0:
                     tdt_sum += topology_discovery_time
                 else:
                     running = False
+                    break
 
             # Append the topology discovery time to the topology_output.txt file
             #with open('topology_output.txt', 'a') as f:

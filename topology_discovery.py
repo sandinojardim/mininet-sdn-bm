@@ -1,4 +1,3 @@
-import sys
 import requests
 import time
 from scapy.all import *
@@ -6,7 +5,7 @@ from scapy.contrib.openflow import OFPTFeaturesRequest, OFPTFeaturesReply, OFPTP
 from arguments_parser import parser
 
 
-QUERY_INTERVAL = 1
+QUERY_INTERVAL = 3
 
 def get_topology(controller,CONTROLLER_IP, REST_PORT):
     if controller == 'onos':

@@ -114,6 +114,7 @@ def generate_network(topology, num_switches, client_links, server_links,controll
 if __name__ == '__main__':
 
     input_param = parser('workload')
+    print(input_param)
     topology, num_sw = generate_topology(input_param[0],input_param[1])
     client_links = [[1, 1]]
     server_links = [[2,1]]

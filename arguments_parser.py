@@ -23,7 +23,7 @@ def parser(program):
     elif program == 'workload':
         parser = argparse.ArgumentParser(description='Workload Generator for SDN-BM experiments')
         parser.add_argument('controller_ip', help='Controller IP address', default='localhost')
-        parser.add_argument('controller_port', type=int, help='Controller port number',default=6653)
+        parser.add_argument('controller_port', help='Controller port number',default=6653,type=int)
         parser.add_argument('--topology', choices=['3-tier', 'star', 'mesh', 'leaf-spine'], help='Topology type')
         parser.add_argument('--num-cores', type=int, help='Number of core switches (for 3-tier topology)')
         parser.add_argument('--num-aggs', type=int, help='Number of aggregation switches (for 3-tier topology)')
