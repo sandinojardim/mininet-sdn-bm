@@ -1,8 +1,10 @@
-import random, time, socket
+import subprocess
+import argparse
+import random, time
 from mininet.cli import CLI
 from mininet.net import Mininet
-from mininet.node import Controller, OVSSwitch, RemoteController
-from mininet.link import TCLink
+from mininet.node import OVSSwitch, RemoteController
+from arguments_parser import parser
 
 
 net = Mininet(controller=RemoteController, switch=OVSSwitch)
@@ -73,13 +75,9 @@ def start_traffic(clients, servers):
         host.waitOutput()
         host.cmd('echo {} >> log_{}.txt'.format(time.strftime("%H%M%S.%f")[:-3],host.name))
 
-    # Stop the simulation
-    #for srv in servers:
-    #    stop_server(srv)
-    #net.stop()
 
 
-def generate_network(topology, num_switches, client_links, server_links):
+def generate_network(topology, num_switches, client_links, server_links,controller_data):
     #tirei net daqui e deixei como variável global
 
     switches = []
@@ -108,22 +106,24 @@ def generate_network(topology, num_switches, client_links, server_links):
                 neighbor_switch = switches[neighbor - 1]
                 net.addLink(switch, neighbor_switch)
     
-    c0 = net.addController('c0', controller=RemoteController, ip='localhost', port=6653)
+    c0 = net.addController('c0', controller=RemoteController, ip=controller_data[0], port=controller_data[1])
     
     return clients, servers, c0
 
 
-
 if __name__ == '__main__':
-    topology, num_sw = generate_topology('3-tier',[1,1,1])
-    client_links = [[1, 1], [1,2]]
-    server_links = [[3,1]]
-    cl, srv, ctrl = generate_network(topology, num_sw, client_links, server_links)
+
+    input_param = parser('workload')
+    topology, num_sw = generate_topology(input_param[0],input_param[1])
+    client_links = [[1, 1]]
+    server_links = [[2,1]]
+    cl, srv, ctrl = generate_network(topology, num_sw, client_links, server_links,input_param[2])
 
     net.start()
     
-    #ctrl.net_topo_discoveryTime(num_sw)
     CLI(net)
     #start_traffic(cl, srv)
+    #time.sleep(10)
 
     net.stop()
+    subprocess.run(['mn', '-c'])
