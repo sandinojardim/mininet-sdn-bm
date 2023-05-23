@@ -5,12 +5,6 @@ from email_sender import send_email_with_attachment
 from arguments_parser import parser
 
 
-# Check if the file exists
-if not os.path.isfile('output/topology_output.txt'):
-    # Create the file
-    with open('output/topology_output.txt', 'w') as f:
-        pass
-
 def run_topology_discovery(controller_name, controller_ip, controller_port, rest_port, target_length, iface):
     cmd = ['python3', 'application-plane/topology.py', controller_ip, controller_port, controller_name, rest_port, str(target_length),iface]
     return subprocess.Popen(cmd,stdout=subprocess.PIPE)
