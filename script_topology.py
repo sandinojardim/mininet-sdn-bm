@@ -9,9 +9,9 @@ def run_topology_discovery(controller_name, controller_ip, controller_port, rest
     cmd = ['python3', 'application-plane/topology.py', controller_ip, controller_port, controller_name, rest_port, str(target_length),iface]
     return subprocess.Popen(cmd,stdout=subprocess.PIPE)
 
-def run_workload_simulation(topology_type, topology_parameters):
+def run_workload_simulation(controller_ip, controller_port,topology_type, topology_parameters):
     if topology_type == 'leaf-spine':
-        cmd = ['python3', 'workload.py','--topology',topology_type, '--num-leafs', f'{topology_parameters[0]}', '--num-spines', f'{topology_parameters[1]}']
+        cmd = ['python3', 'workload.py',controller_ip, controller_port,'--topology',topology_type, '--num-leafs', f'{topology_parameters[0]}', '--num-spines', f'{topology_parameters[1]}']
         return subprocess.Popen(cmd,stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
 def write_to_csv(filename, data):
@@ -35,7 +35,7 @@ if __name__ == '__main__':
             topology_proc = run_topology_discovery(args.controller_name,args.controller_ip,args.controller_port,args.rest_port,(i + i * 2),args.iface)
             time.sleep(5)
             print('running workload.py')
-            run_simulation_proc = run_workload_simulation(args.topology, [i, i * 2])
+            run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, [i, i * 2])
 
             # Wait for topology.py to finish execution
             topology_proc.wait()  # Wait for topology.py to finish
