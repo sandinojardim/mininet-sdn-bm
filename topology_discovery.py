@@ -5,7 +5,7 @@ from scapy.contrib.openflow import OFPTFeaturesRequest, OFPTFeaturesReply, OFPTP
 from arguments_parser import parser
 
 
-QUERY_INTERVAL = 3
+QUERY_INTERVAL = 5
 
 def get_topology(controller,CONTROLLER_IP, REST_PORT):
     if controller == 'onos':
@@ -96,7 +96,7 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
             break
         else:
             consecutive_failures += 1
-            if consecutive_failures >= 3:
+            if consecutive_failures >= 5:
                 with open('output/topo_disc_'+controller+'.txt', 'a') as f:
                     f.write("-1.0\n") #flag for script stop
                 break
