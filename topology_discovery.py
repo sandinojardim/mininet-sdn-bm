@@ -5,8 +5,6 @@ from scapy.contrib.openflow import OFPTFeaturesRequest, OFPTFeaturesReply, OFPTP
 from arguments_parser import parser
 
 
-QUERY_INTERVAL = 5
-
 def get_topology(controller,CONTROLLER_IP, REST_PORT):
     if controller == 'onos':
         url = f'http://{CONTROLLER_IP}:{REST_PORT}/onos/v1/topology'
@@ -76,6 +74,7 @@ def is_ofpt_features_reply(packet):
 
 
 def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_port):
+    QUERY_INTERVAL = args.query_interval
     # Record the time for the first discovery message received at the controller
     print("Waiting for the first OFPTFeaturesReply message...")
     #print(f"ether dst {CONTROLLER_IP}")
@@ -96,7 +95,7 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
             break
         else:
             consecutive_failures += 1
-            if consecutive_failures >= 5:
+            if consecutive_failures >= args.consec_failures:
                 with open('output/topo_disc_'+controller+'.txt', 'a') as f:
                     f.write("-1.0\n") #flag for script stop
                 break

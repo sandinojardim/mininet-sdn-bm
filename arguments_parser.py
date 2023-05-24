@@ -18,6 +18,8 @@ def parser(program):
         parser.add_argument('--hub-switch', type=int, help='Hub switch index (for star topology)')
         parser.add_argument('--num-leafs', type=int, help='Number of leaf switches (for leaf-spine topology)')
         parser.add_argument('--num-spines', type=int, help='Number of spine switches (for leaf-spine topology)')
+        parser.add_argument('--query-interval', help='Interval between next topology size query',type=int)
+        parser.add_argument('--consec-failures', help='How many consecutive failures before stop querying',type=int)
         args = parser.parse_args()
         return args
     elif program == 'workload':
@@ -59,5 +61,7 @@ def parser(program):
         parser.add_argument('controller_name', help='Controller name')
         parser.add_argument('rest_port', help='REST API port number',default=8181)
         parser.add_argument('target_length', help='Target Topology Length',type=int)
+        parser.add_argument('query_interval', help='Interval between next topology size query',type=int)
+        parser.add_argument('consec_failures', help='How many consecutive failures before stop querying',type=int)
         parser.add_argument('iface', help='Interface to listen',default='lo')
         return parser.parse_args()

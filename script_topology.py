@@ -5,8 +5,8 @@ from email_sender import send_email_with_attachment
 from arguments_parser import parser
 
 
-def run_topology_discovery(controller_name, controller_ip, controller_port, rest_port, target_length, iface):
-    cmd = ['python3', 'topology_discovery.py', controller_ip, controller_port, controller_name, rest_port, str(target_length),iface]
+def run_topology_discovery(controller_ip , controller_port, controller_name, rest_port, target_length, query_interval, consec_failures, iface):
+    cmd = ['python3', 'topology_discovery.py', controller_ip, controller_port, controller_name, rest_port, str(target_length), str(query_interval), str(consec_failures), iface]
     return subprocess.Popen(cmd,stdout=subprocess.PIPE)
 
 def run_workload_simulation(controller_ip, controller_port,topology_type, topology_parameters):
@@ -33,15 +33,14 @@ if __name__ == '__main__':
         print('Running for topo_lenght = {}'.format(target_length))
         for j in range(1, 11):
             print('running topology.py')
-            topology_proc = run_topology_discovery(args.controller_name,args.controller_ip,args.controller_port,args.rest_port,(i + i * 2),args.iface)
+            topology_proc = run_topology_discovery(args.controller_ip, args.controller_port, args.controller_name, args.rest_port,(i + i * 2),args.query_interval,args.consec_failures,args.iface)
             time.sleep(3)
             print('running workload.py')
             run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, [i, i * 2])
             # Wait for topology.py to finish execution
             topology_proc.wait()  # Wait for topology.py to finish
             print('finished topology.py')
-            # Send EOF to the run_simulation subprocess
-            #run_simulation_proc.stdin.write(b'\x04')  # Send CTRL-D / EOF
+            
             run_simulation_proc.stdin.flush()
             run_simulation_proc.communicate()  # Wait for run_simulation to finish and capture output
 
