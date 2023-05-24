@@ -66,7 +66,7 @@ def is_ofpt_features_reply(packet):
     while packet.payload:
         x = packet.payload
         #print(x.summary())
-        if 'OFPTFeaturesReply' in x.summary():
+        if 'OFPTPacketIn' in x.summary():
             start_time = time.time()
             return True
         packet = x
