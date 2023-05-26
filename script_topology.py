@@ -26,7 +26,7 @@ if __name__ == '__main__':
     
     data = []
     running = True
-    i = 10
+    i = 5
     while running:
         tdt_sum = 0
         target_length = i + (i * 2)
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         for j in range(1, 11):
             print('running topology.py')
             topology_proc = run_topology_discovery(args.controller_ip, args.controller_port, args.controller_name, args.rest_port,(i + i * 2),args.query_interval,args.consec_failures,args.iface)
-            time.sleep(3)
+            time.sleep(5)
             print('running workload.py')
             run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, [i, i * 2])
             # Wait for topology.py to finish execution
@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
         avg_tdt = tdt_sum / 10
         data.append([target_length, avg_tdt])
+        print(data)
         i = i*2
 
     write_to_csv('output/'+args.controller_name+'_average_topology_discovery_time.csv', data)

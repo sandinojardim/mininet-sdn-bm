@@ -65,3 +65,10 @@ def parser(program):
         parser.add_argument('consec_failures', help='How many consecutive failures before stop querying',type=int)
         parser.add_argument('iface', help='Interface to listen',default='lo')
         return parser.parse_args()
+    elif program == 'packet_in':
+        parser = argparse.ArgumentParser(description='Packet_IN Register - Topology Discovery.')
+        parser.add_argument('iface', help='Interface to listen',default='lo')
+        parser.add_argument('controller_name', help='Controller name')
+        #parser.add_argument('controller_ip', help='Controller IP address', default='localhost')
+        parser.add_argument('controller_port', help='Controller port number',default=6653)
+        return parser.parse_args()
