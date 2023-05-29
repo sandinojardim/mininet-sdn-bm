@@ -13,15 +13,15 @@ fail = False
 
 def last_ofpt_packet_in(packet):
     global last_time_pkt_in
-    if 'OFPTPacketIn' in packet.summary():
-        last_time_pkt_in = time.time()
-        #print(last_time_pkt_in)
-        if topology_match or fail:
-            return True
-        else:
-            return False
-        #with open('output/last_ofpt_packet_in_'+args.controller_name+'.txt', 'a') as f:
-        #    f.write(f"{last_time_pkt_in}\n")
+    #print(last_time_pkt_in)
+    if topology_match or fail:
+        return True
+    else:
+        if 'OFPTPacketIn' in packet.summary():
+            last_time_pkt_in = time.time()
+        return False
+    #with open('output/last_ofpt_packet_in_'+args.controller_name+'.txt', 'a') as f:
+    #    f.write(f"{last_time_pkt_in}\n")
 
 def run_ofpt_packet_in_record(controller_name, controller_port, iface):
     cmd = ['python3', 'ofpt_packetin_record.py', iface, controller_name, controller_port]

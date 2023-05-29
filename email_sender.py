@@ -22,18 +22,19 @@ def send_email_with_attachment(subject, message, attachment_path):
     # Attach the message text
     email_message.attach(MIMEText(message, 'plain'))
 
-    # Open the file in bynary
-    with open(attachment_path, 'rb') as attachment_file:
-        # Add the file as an attachment
-        attachment = MIMEBase('application', 'octet-stream')
-        attachment.set_payload(attachment_file.read())
+    for att in attachment_path:
+        # Open the file in bynary
+        with open(att, 'rb') as attachment_file:
+            # Add the file as an attachment
+            attachment = MIMEBase('application', 'octet-stream')
+            attachment.set_payload(attachment_file.read())
 
-    # Encode the attachment
-    encoders.encode_base64(attachment)
-    attachment.add_header('Content-Disposition', f"attachment; filename= {attachment_path}")
+        # Encode the attachment
+        encoders.encode_base64(attachment)
+        attachment.add_header('Content-Disposition', f"attachment; filename= {att}")
 
-    # Add the attachment to the email
-    email_message.attach(attachment)
+        # Add the attachment to the email
+        email_message.attach(attachment)
 
     # Connect to the SMTP server
     server = smtplib.SMTP(smtp_server, smtp_port)

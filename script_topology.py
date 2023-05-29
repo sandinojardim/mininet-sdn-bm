@@ -6,12 +6,13 @@ from arguments_parser import parser
 
 
 def run_topology_discovery(controller_ip , controller_port, controller_name, rest_port, target_length, query_interval, consec_failures, iface):
-    cmd = ['python3', 'topology_discovery.py', controller_ip, controller_port, controller_name, rest_port, str(target_length), str(query_interval), str(consec_failures), iface]
+    cmd = ['python3', 'topology_discovery.py', '-ip', controller_ip, '-p', controller_port, '-n', controller_name, '-r', rest_port,'-l', str(target_length),'-q', str(query_interval),'-c', str(consec_failures),'-if', iface]
+    print(cmd)
     return subprocess.Popen(cmd,stdout=subprocess.PIPE)
 
 def run_workload_simulation(controller_ip, controller_port,topology_type, topology_parameters):
     if topology_type == 'leaf-spine':
-        cmd = ['python3', 'workload.py',controller_ip, controller_port,'--topology',topology_type, '--num-leafs', f'{topology_parameters[0]}', '--num-spines', f'{topology_parameters[1]}']
+        cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-leafs', f'{topology_parameters[0]}', '--num-spines', f'{topology_parameters[1]}']
         print(cmd)
         return subprocess.Popen(cmd,stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
@@ -21,17 +22,29 @@ def write_to_csv(filename, data):
         writer.writerow(['num_nodes', 'avg_tdt'])
         writer.writerows(data)
 
+def report(filename, args, run_data):
+    report = ''
+    for arg in vars(args):
+        if getattr(args,arg) != None:
+            report += (f'{arg}: {getattr(args, arg)}\n')
+    for lines in run_data:
+        report += str(lines)+'\n'
+    with open(filename, 'w', newline='') as f:
+        f.write(report)
+
 if __name__ == '__main__':
     args = parser('topology-script')
     
     data = []
+    running_data = []
     running = True
-    i = 5
+    i = args.start
     while running:
         tdt_sum = 0
         target_length = i + (i * 2)
-        print('Running for topo_lenght = {}'.format(target_length))
-        for j in range(1, 11):
+        disc_stats = []
+        print('Running for topo_length = {}'.format(target_length))
+        for j in range(0, args.trials):
             print('running topology.py')
             topology_proc = run_topology_discovery(args.controller_ip, args.controller_port, args.controller_name, args.rest_port,(i + i * 2),args.query_interval,args.consec_failures,args.iface)
             time.sleep(5)
@@ -53,8 +66,9 @@ if __name__ == '__main__':
             with open('output/topo_disc_'+args.controller_name+'.txt', 'r') as f:
                 lines = f.readlines()
                 topology_discovery_time = float(lines[-1].strip())
-                print(topology_discovery_time)
                 if topology_discovery_time != -1.0:
+                    disc_stats.append(topology_discovery_time)
+                    print(disc_stats)
                     tdt_sum += topology_discovery_time
                 else:
                     running = False
@@ -64,11 +78,17 @@ if __name__ == '__main__':
             #with open('topology_output.txt', 'a') as f:
             #    f.write(f"{topology_discovery_time}\n")
 
-        avg_tdt = tdt_sum / 10
+        avg_tdt = tdt_sum / args.trials
         data.append([target_length, avg_tdt])
+        running_data.append([target_length,disc_stats,avg_tdt])
         print(data)
         i = i*2
-
-    write_to_csv('output/'+args.controller_name+'_average_topology_discovery_time.csv', data)
-    send_email_with_attachment(f'({args.controller_name}) Task completed', 'Experiment finished successfully', 'output/'+args.controller_name+'_average_topology_discovery_time.csv')
+    
+    avg_file = 'output/'+args.controller_name+'_average_topology_discovery_time.csv'
+    idv_file = 'output/'+args.controller_name+'_individual_topology_discovery_time.csv'
+    report_file = 'output/'+args.controller_name+'_topology_discovery_time_report.txt'
+    write_to_csv(avg_file, data)
+    write_to_csv(idv_file, data)
+    report(report_file,args,running_data)
+    send_email_with_attachment(f'({args.controller_name}) Task completed', 'Experiment finished successfully', [avg_file,idv_file,report_file])
 
