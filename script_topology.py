@@ -82,7 +82,7 @@ if __name__ == '__main__':
         data.append([target_length, avg_tdt])
         running_data.append([target_length,disc_stats,avg_tdt])
         print(data)
-        i = i*2
+        i = i+1
     
     avg_file = 'output/'+args.controller_name+'_average_topology_discovery_time.csv'
     idv_file = 'output/'+args.controller_name+'_individual_topology_discovery_time.csv'
