@@ -1,5 +1,4 @@
 import subprocess
-import argparse
 import random, time
 from mininet.cli import CLI
 from mininet.net import Mininet
