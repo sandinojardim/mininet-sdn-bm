@@ -32,8 +32,13 @@ def report(filename, args, run_data):
     with open(filename, 'w', newline='') as f:
         f.write(report)
 
+
+
 if __name__ == '__main__':
     args = parser('topology-script')
+    avg_file = 'output/'+args.controller_name+'_average_topology_discovery_time.csv'
+    idv_file = 'output/'+args.controller_name+'_individual_topology_discovery_time.csv'
+    report_file = 'output/'+args.controller_name+'_topology_discovery_time_report.txt'
     
     data = []
     running_data = []
@@ -83,12 +88,11 @@ if __name__ == '__main__':
         running_data.append([target_length,disc_stats,avg_tdt])
         print(data)
         i = i+1
+
+        write_to_csv(avg_file, data)
+        write_to_csv(idv_file, data)
+        report(report_file,args,running_data)
     
-    avg_file = 'output/'+args.controller_name+'_average_topology_discovery_time.csv'
-    idv_file = 'output/'+args.controller_name+'_individual_topology_discovery_time.csv'
-    report_file = 'output/'+args.controller_name+'_topology_discovery_time_report.txt'
-    write_to_csv(avg_file, data)
-    write_to_csv(idv_file, data)
-    report(report_file,args,running_data)
+    
     send_email_with_attachment(f'({args.controller_name}) Task completed', 'Experiment finished successfully', [avg_file,idv_file,report_file])
 
