@@ -53,14 +53,14 @@ def get_topology(controller,CONTROLLER_IP, REST_PORT):
         return topology, links
     elif controller == 'floodlight':
         url1 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
-        url2 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/links/json'
+        url2 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/topology/links/json'
         try:
             response1 = requests.get(url1)
             response2 = requests.get(url2)
             if response1.status_code == 200:
                 switches = response1.json()
                 links = response2.json()
-                return len(switches), len(links)
+                return len(switches), len(links)*2
             else:
                 print(f"Error: {response.status_code} - {response.text}")
         except requests.exceptions.RequestException as e:
@@ -129,7 +129,6 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
     consecutive_failures = 0
     while True:
         topology, links = get_topology(controller,ctrl_ip, rest_port)
-        print(topology,links)
         #print(' Compare the discovered topology information with the deployed topology information')
         if compare_topology(topology, len_topology):
             if end_time == None:
