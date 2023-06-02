@@ -120,7 +120,8 @@ if __name__ == '__main__':
     cl, srv, ctrl = generate_network(topology, num_sw, client_links, server_links,input_param[2])
 
     net.start()
-    
+    with open('output/link_length.txt','w') as f:
+        f.write(f'{len(net.links)-(len(client_links)+len(server_links))}')
     CLI(net)
     #start_traffic(cl, srv)
     #time.sleep(10)

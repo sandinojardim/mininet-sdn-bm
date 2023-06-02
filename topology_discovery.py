@@ -2,18 +2,30 @@ import requests
 import subprocess, signal
 import time, datetime
 from arguments_parser import parser
+from global_variables import *
 from scapy.all import *
 from scapy.contrib.openflow import OFPTPacketIn, OFPTPacketOut
 
-start_time = None
-pkt_in_sniff = None
-last_time_pkt_in = None
-topology_match = False
-fail = False
+
+def get_target_link():
+    with open('output/link_length.txt','r') as f:
+        lines = f.readlines()
+        value = int(lines[-1].strip())
+    return value
+
+def is_ofpt_packet_out(packet):
+    global start_time, total_packets
+    total_packets += 1
+    if 'OFPTPacketOut' in packet.summary():
+        start_time = time.time()
+        #print(packet[TCP].seq,datetime.fromtimestamp(start_time).strftime("%H:%M:%S,%f")[:-3])
+        return True
+    else:
+        return False
 
 def last_ofpt_packet_in(packet):
-    global last_time_pkt_in
-    #print(last_time_pkt_in)
+    global last_time_pkt_in, total_packets
+    total_packets += 1
     if topology_match or fail:
         return True
     else:
@@ -37,7 +49,8 @@ def get_topology(controller,CONTROLLER_IP, REST_PORT):
         #print(response_data)
         # Extract the topology information from the response
         topology = response_data['devices']
-        return topology
+        links = response_data['links']
+        return topology, links
     elif controller == 'floodlight':
         url = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
         try:
@@ -83,15 +96,7 @@ def calculate_topology_discovery_time(start_time, end_time):
 
 
 
-def is_ofpt_packet_out(packet):
-    global start_time
-    #print(packet.summary())
-    if 'OFPTPacketOut' in packet.summary():
-        start_time = time.time()
-        #print(packet[TCP].seq,datetime.fromtimestamp(start_time).strftime("%H:%M:%S,%f")[:-3])
-        return True
-    else:
-        return False
+
 
 def start_pkt_in_sniff():
     global pkt_in_sniff
@@ -105,7 +110,7 @@ def stop_pkt_in_sniff():
 
 
 def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_port):
-    global topology_match, fail
+    global topology_match, fail, target_links, end_time, total_packets
     QUERY_INTERVAL = args.query_interval
     pkt_in_sniff_thread = threading.Thread(target=start_pkt_in_sniff)  # Initialize pkt_in_sniff_thread here
 
@@ -119,21 +124,22 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
     # Query the controller every t=3 seconds to obtain the discovered network topology information
     consecutive_failures = 0
     while True:
-        topology = get_topology(controller,ctrl_ip, rest_port)
+        topology, links = get_topology(controller,ctrl_ip, rest_port)
         #print(' Compare the discovered topology information with the deployed topology information')
-        topology_match = compare_topology(topology, len_topology)
-        if topology_match:
-            #print("MATCH!")
-            pkt_in_sniff_thread.join()
-            # Record the time for the last discovery message sent to the controller
-            end_time = last_time_pkt_in
-            break
-            #with open('output/last_ofpt_packet_in_'+args.controller_name+'.txt', 'r') as f:
-            #    print("Recording last OPFT_PacketIN")
-            #    lines = f.readlines()
-            #    end_time = float(lines[-1].strip())
-            #    print(datetime.fromtimestamp(end_time).strftime("%H:%M:%S,%f")[:-3])
-            #    break
+        if compare_topology(topology, len_topology):
+            print(topology,links)
+            if end_time == None:
+                # Record the time for the last discovery message sent to the controller
+                end_time = last_time_pkt_in
+            if target_links == None:
+                target_links = get_target_link()
+            if links == (target_links*2):
+                topology_match = True
+                pkt_in_sniff_thread.join()
+                end_time_links = last_time_pkt_in
+                break
+            else:
+                topology_match = False
         else:
             consecutive_failures += 1
             if consecutive_failures >= args.consec_failures:
@@ -146,9 +152,10 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
 
     # Calculate the topology discovery time
     if topology_match:
+        print('total packets: ',total_packets)
         topology_discovery_time = calculate_topology_discovery_time(start_time, end_time)
         with open('output/topo_disc_'+controller+'.txt', 'a') as f:
-            f.write(f"{topology_discovery_time}\n")
+            f.write(f"{topology_discovery_time},{end_time_links-start_time}\n")
 
 if __name__ == '__main__':
 
