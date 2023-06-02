@@ -52,12 +52,15 @@ def get_topology(controller,CONTROLLER_IP, REST_PORT):
         links = response_data['links']
         return topology, links
     elif controller == 'floodlight':
-        url = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
+        url1 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
+        url2 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/links/json'
         try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                switches = response.json()
-                return len(switches)
+            response1 = requests.get(url1)
+            response2 = requests.get(url2)
+            if response1.status_code == 200:
+                switches = response1.json()
+                links = response2.json()
+                return len(switches), len(links)
             else:
                 print(f"Error: {response.status_code} - {response.text}")
         except requests.exceptions.RequestException as e:
