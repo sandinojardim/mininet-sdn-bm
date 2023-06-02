@@ -75,7 +75,7 @@ def get_topology(controller,CONTROLLER_IP, REST_PORT):
                 if 'node' in data['nodes']:
                     nodes = data['nodes']['node']
                     links = sum(len(node.get('node-connector', [])) for node in nodes)
-                    return len(nodes), (links-len(nodes))*2 #odl shows unidirectional links and add one local link for each sw
+                    return len(nodes), (links-len(nodes))#odl adds one local link for each sw
                 else:
                     return 0
             else:
