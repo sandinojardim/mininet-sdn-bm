@@ -74,7 +74,9 @@ def get_topology(controller,CONTROLLER_IP, REST_PORT):
                 data = response.json()
                 if 'node' in data['nodes']:
                     nodes = data['nodes']['node']
-                    return len(nodes)
+                    links = sum(len(node.get('node-connector', [])) for node in nodes)
+                    print('num_links = ',links)
+                    return len(nodes), links
                 else:
                     return 0
             else:
