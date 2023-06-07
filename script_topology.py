@@ -19,7 +19,7 @@ def run_workload_simulation(controller_ip, controller_port,topology_type, topolo
 def write_to_csv(filename, data):
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['num_nodes', 'avg_tdt', 'avg_ldt', 'avg_total'])
+        writer.writerow(['num_nodes', 'avg_tdt', 'avg_ldt', 'avg_total','avg_lldp','avg_pkt'])
         writer.writerows(data)
 
 def report(filename, args, run_data):
