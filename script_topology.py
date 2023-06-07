@@ -45,9 +45,9 @@ if __name__ == '__main__':
     running = True
     i = args.start
     while running:
-        ldt_sum, tdt_sum = 0,0
+        ldt_sum, tdt_sum, lldp_sum, pkt_sum = 0,0,0,0
         target_length = i + (i * 2)
-        disc_stats, link_stats = [],[]
+        disc_stats, link_stats, pkt_stats = [],[],[]
         print('Running for topo_length = {}'.format(target_length))
         for j in range(0, args.trials):
             print('running topology.py')
@@ -75,11 +75,14 @@ if __name__ == '__main__':
                 topology_discovery_time, total_discovery_time, total_pkt, total_lldp = float(values[0]), float(values[1]), float(values[2]), float(values[3])
                 link_discovery_time = total_discovery_time - topology_discovery_time
                 if topology_discovery_time != -1.0:
-                    disc_stats.append([topology_discovery_time, total_lldp, total_pkt])
+                    disc_stats.append(topology_discovery_time)
+                    pkt_stats.append([total_lldp,total_pkt])
                     link_stats.append(link_discovery_time)
                     print(disc_stats)
                     tdt_sum += total_discovery_time
                     ldt_sum += link_discovery_time
+                    lldp_sum += total_lldp
+                    pkt_sum += total_pkt
                 else:
                     running = False
                     break
@@ -88,9 +91,9 @@ if __name__ == '__main__':
             #with open('topology_output.txt', 'a') as f:
             #    f.write(f"{topology_discovery_time}\n")
 
-        avg_tdt, avg_ldt = (tdt_sum / args.trials), (ldt_sum/args.trials)
-        data.append([target_length, avg_tdt, avg_ldt, (avg_tdt+avg_ldt)])
-        running_data.append([target_length,disc_stats,link_stats])
+        avg_tdt, avg_ldt, avg_lldp, avg_pkt = (tdt_sum / args.trials), (ldt_sum/args.trials), (lldp_sum/args.trials), (pkt_sum/args.trials)
+        data.append([target_length, avg_tdt, avg_ldt, (avg_tdt+avg_ldt),avg_lldp, avg_pkt])
+        running_data.append([target_length,disc_stats,link_stats,pkt_stats])
         print(data)
         i = i+args.diff
 
