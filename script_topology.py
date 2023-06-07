@@ -72,7 +72,10 @@ if __name__ == '__main__':
                 lines = f.readlines()
                 last_line = lines[-1].strip()
                 values = last_line.split(",")
-                topology_discovery_time, total_discovery_time, total_pkt, total_lldp = float(values[0]), float(values[1]), float(values[2]), float(values[3])
+                if(len(values) > 1):
+                    topology_discovery_time, total_discovery_time, total_pkt, total_lldp = float(values[0]), float(values[1]), float(values[2]), float(values[3])
+                else:
+                    topology_discovery_time = -1.0
                 link_discovery_time = total_discovery_time - topology_discovery_time
                 if topology_discovery_time != -1.0:
                     disc_stats.append(topology_discovery_time)
