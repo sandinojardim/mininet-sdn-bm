@@ -6,3 +6,4 @@ topology_match = False
 fail = False
 target_links = None
 total_packets = 0
+count_lldp = 0

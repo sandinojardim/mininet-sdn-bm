@@ -4,7 +4,8 @@ import time, datetime
 from arguments_parser import parser
 from global_variables import *
 from scapy.all import *
-from scapy.contrib.openflow import OFPTPacketIn, OFPTPacketOut
+from scapy.contrib.openflow3 import OFPTPacketIn, OFPTPacketOut, OpenFlow3
+from scapy.contrib.lldp import LLDPDU
 
 
 def get_target_link():
@@ -14,31 +15,28 @@ def get_target_link():
     return value
 
 def is_ofpt_packet_out(packet):
-    global start_time, total_packets
-    total_packets += 1
+    global start_time, total_packets, count_lldp
+    total_packets += len(packet)
     if 'OFPTPacketOut' in packet.summary():
         start_time = time.time()
-        #print(packet[TCP].seq,datetime.fromtimestamp(start_time).strftime("%H:%M:%S,%f")[:-3])
+        if(packet.getlayer(LLDPDU)):
+            count_lldp += len(packet)
         return True
     else:
         return False
 
 def last_ofpt_packet_in(packet):
-    global last_time_pkt_in, total_packets
-    total_packets += 1
+    global last_time_pkt_in, total_packets, count_lldp
+    total_packets += len(packet)
     if topology_match or fail:
         return True
     else:
         if 'OFPTPacketIn' in packet.summary():
             last_time_pkt_in = time.time()
+            if(packet.getlayer(LLDPDU)):
+                count_lldp += len(packet)
         return False
-    #with open('output/last_ofpt_packet_in_'+args.controller_name+'.txt', 'a') as f:
-    #    f.write(f"{last_time_pkt_in}\n")
 
-def run_ofpt_packet_in_record(controller_name, controller_port, iface):
-    cmd = ['python3', 'ofpt_packetin_record.py', iface, controller_name, controller_port]
-    print(cmd)
-    return subprocess.Popen(cmd,stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
 def get_topology(controller,CONTROLLER_IP, REST_PORT):
     if controller == 'onos':
@@ -114,7 +112,7 @@ def stop_pkt_in_sniff():
 
 
 def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_port):
-    global topology_match, fail, target_links, end_time, total_packets
+    global topology_match, fail, target_links, end_time, total_packets, count_lldp
     QUERY_INTERVAL = args.query_interval
     pkt_in_sniff_thread = threading.Thread(target=start_pkt_in_sniff)  # Initialize pkt_in_sniff_thread here
 
@@ -158,7 +156,7 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
         print('total packets: ',total_packets)
         topology_discovery_time = calculate_topology_discovery_time(start_time, end_time)
         with open('output/topo_disc_'+controller+'.txt', 'a') as f:
-            f.write(f"{topology_discovery_time},{end_time_links-start_time}\n")
+            f.write(f"{topology_discovery_time},{end_time_links-start_time},{count_lldp},{total_packets}\n")
 
 if __name__ == '__main__':
 
