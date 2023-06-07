@@ -22,6 +22,7 @@ def parser(program):
         parser.add_argument('-c','--consec-failures', help='How many consecutive failures before stop querying',type=int)
         parser.add_argument('-s','--start', help='Initial value for i (initial topology size)',type=int)
         parser.add_argument('-tr','--trials', help='Number of trials',type=int,default=10)
+        parser.add_argument('-d','--diff', help='Commom difference between each topology size of the next experiment ',type=int,default=5)
         args = parser.parse_args()
         return args
     elif program == 'workload':
