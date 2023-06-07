@@ -92,7 +92,7 @@ if __name__ == '__main__':
         data.append([target_length, avg_tdt, avg_ldt, (avg_tdt+avg_ldt)])
         running_data.append([target_length,disc_stats,link_stats])
         print(data)
-        i = i+1
+        i = i+args.diff
 
         write_to_csv(avg_file, data)
         #write_to_csv(idv_file, data)
