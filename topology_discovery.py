@@ -133,8 +133,8 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
                 # Record the time for the last discovery message sent to the controller
                 end_time = last_time_pkt_in
             if args.no_links:
-                pkt_in_sniff_thread.join()
                 topology_match = True
+                pkt_in_sniff_thread.join()
                 break
             else:
                 if target_links == None:
