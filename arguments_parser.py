@@ -24,6 +24,7 @@ def parser(program):
         parser.add_argument('-tr','--trials', help='Number of trials',type=int,default=10)
         parser.add_argument('-d','--diff', help='Commom difference between each topology size of the next experiment ',type=int,default=5)
         parser.add_argument('-max','--maxsize', help='Max topology size',type=int,default=1000)
+        parser.add_argument('-k', '--no_links', action=argparse.BooleanOptionalAction, default=False,help='Enable or disable link discovery time count')
         args = parser.parse_args()
         return args
     elif program == 'workload':
@@ -68,6 +69,7 @@ def parser(program):
         parser.add_argument('-q','--query_interval', help='Interval between next topology size query',type=int)
         parser.add_argument('-c','--consec_failures', help='How many consecutive failures before stop querying',type=int)
         parser.add_argument('-if','--iface', help='Interface to listen',default='lo')
+        parser.add_argument('-k', '--no_links', action=argparse.BooleanOptionalAction, default=False,help='Enable or disable link discovery time count')
         return parser.parse_args()
     elif program == 'packet_in':
         parser = argparse.ArgumentParser(description='Packet_IN Register - Topology Discovery.')

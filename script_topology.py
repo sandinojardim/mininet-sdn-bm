@@ -5,8 +5,11 @@ from email_sender import send_email_with_attachment
 from arguments_parser import parser
 
 
-def run_topology_discovery(controller_ip , controller_port, controller_name, rest_port, target_length, query_interval, consec_failures, iface):
-    cmd = ['python3', 'topology_discovery.py', '-ip', controller_ip, '-p', controller_port, '-n', controller_name, '-r', rest_port,'-l', str(target_length),'-q', str(query_interval),'-c', str(consec_failures),'-if', iface]
+def run_topology_discovery(controller_ip , controller_port, controller_name, rest_port, target_length, query_interval, consec_failures, iface, nolinks):
+    if nolinks:
+        cmd = ['python3', 'topology_discovery.py', '-ip', controller_ip, '-p', controller_port, '-n', controller_name, '-r', rest_port,'-l', str(target_length),'-q', str(query_interval),'-c', str(consec_failures),'-if', iface, '-k']
+    else:
+        cmd = ['python3', 'topology_discovery.py', '-ip', controller_ip, '-p', controller_port, '-n', controller_name, '-r', rest_port,'-l', str(target_length),'-q', str(query_interval),'-c', str(consec_failures),'-if', iface]
     print(cmd)
     return subprocess.Popen(cmd,stdout=subprocess.PIPE)
 
@@ -51,7 +54,7 @@ if __name__ == '__main__':
         print('Running for topo_length = {}'.format(target_length))
         for j in range(0, args.trials):
             print('running topology.py')
-            topology_proc = run_topology_discovery(args.controller_ip, args.controller_port, args.controller_name, args.rest_port,(i + i * 2),args.query_interval,args.consec_failures,args.iface)
+            topology_proc = run_topology_discovery(args.controller_ip, args.controller_port, args.controller_name, args.rest_port,(i + i * 2),args.query_interval,args.consec_failures,args.iface,args.no_links)
             #time.sleep(1)
             print('running workload.py')
             run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, [i, i * 2])

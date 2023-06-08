@@ -132,15 +132,20 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
             if end_time == None:
                 # Record the time for the last discovery message sent to the controller
                 end_time = last_time_pkt_in
-            if target_links == None:
-                target_links = get_target_link()
-            if links == (target_links*2):
-                topology_match = True
+            if args.no_links:
                 pkt_in_sniff_thread.join()
-                end_time_links = last_time_pkt_in
+                topology_match = True
                 break
             else:
-                topology_match = False
+                if target_links == None:
+                    target_links = get_target_link()
+                if links == (target_links*2):
+                    topology_match = True
+                    pkt_in_sniff_thread.join()
+                    end_time_links = last_time_pkt_in
+                    break
+                else:
+                    topology_match = False
         else:
             consecutive_failures += 1
             if consecutive_failures >= args.consec_failures:
