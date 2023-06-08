@@ -135,6 +135,7 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
             if args.no_links:
                 topology_match = True
                 pkt_in_sniff_thread.join()
+                end_time_links = 0
                 break
             else:
                 if target_links == None:
