@@ -44,7 +44,7 @@ if __name__ == '__main__':
     running_data = []
     running = True
     i = args.start
-    while running:
+    while running and (i+i*2 < args.maxsize):
         ldt_sum, tdt_sum, lldp_sum, pkt_sum = 0,0,0,0
         target_length = i + (i * 2)
         disc_stats, link_stats, pkt_stats = [],[],[]
