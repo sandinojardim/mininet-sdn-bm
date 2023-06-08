@@ -127,7 +127,7 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
     consecutive_failures = 0
     while True:
         topology, links = get_topology(controller,ctrl_ip, rest_port)
-        #print(' Compare the discovered topology information with the deployed topology information')
+        print(topology,links)
         if compare_topology(topology, len_topology):
             if end_time == None:
                 # Record the time for the last discovery message sent to the controller
