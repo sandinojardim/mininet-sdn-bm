@@ -51,9 +51,9 @@ def get_target(topo, size, type='sep'):
             return (size + size*2)
     elif topo == '3-tier':
         if type == 'sep':
-            return size, size*2, size*2
+            return size, size, size
         else:
-            return (size + size*2 + size*2)
+            return (size + size + size)
     
 
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     i = args.start
     while running and (get_target(args.topology,i,'agg') < args.maxsize):
         ldt_sum, tdt_sum, lldp_sum, pkt_sum = 0,0,0,0
-        target_length = i + (i * 2)
+        target_length = get_target(args.topology,i,'agg')
         disc_stats, link_stats, pkt_stats = [],[],[]
         print('Running for topo_length = {}'.format(target_length))
         for j in range(0, args.trials):
