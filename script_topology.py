@@ -18,7 +18,7 @@ def run_workload_simulation(controller_ip, controller_port,topology_type, topolo
         cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-leafs', f'{topology_parameters[0]}', '--num-spines', f'{topology_parameters[1]}']
         print(cmd)
     elif topology_type == 'mesh':
-        cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-switches', f'{topology_parameters[0]}']
+        cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-switches', f'{topology_parameters}']
         print(cmd)
     elif topology_type == '3-tier':
         cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-cores', f'{topology_parameters[0]}', '--num-aggs', f'{topology_parameters[1]}', '--num-access', f'{topology_parameters[2]}']
