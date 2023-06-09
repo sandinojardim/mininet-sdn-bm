@@ -17,7 +17,13 @@ def run_workload_simulation(controller_ip, controller_port,topology_type, topolo
     if topology_type == 'leaf-spine':
         cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-leafs', f'{topology_parameters[0]}', '--num-spines', f'{topology_parameters[1]}']
         print(cmd)
-        return subprocess.Popen(cmd,stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    elif topology_type == 'mesh':
+        cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-switches', f'{topology_parameters[0]}']
+        print(cmd)
+    elif topology_type == '3-tier':
+        cmd = ['python3', 'workload.py', '-ip', controller_ip, '-p', controller_port,'-t',topology_type, '--num-cores', f'{topology_parameters[0]}', '--num-aggs', f'{topology_parameters[1]}', '--num-access', f'{topology_parameters[2]}']
+        print(cmd)
+    return subprocess.Popen(cmd,stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
 def write_to_csv(filename, data):
     with open(filename, 'w', newline='') as csvfile:
@@ -35,6 +41,20 @@ def report(filename, args, run_data):
     with open(filename, 'w', newline='') as f:
         f.write(report)
 
+def get_target(topo, size, type='sep'):
+    if topo == 'mesh':
+        return size
+    elif topo == 'leaf-spine':
+        if type == 'sep':
+            return size, size*2
+        else:
+            return (size + size*2)
+    elif topo == '3-tier':
+        if type == 'sep':
+            return size, size*2, size*2
+        else:
+            return (size + size*2 + size*2)
+    
 
 
 if __name__ == '__main__':
@@ -47,17 +67,17 @@ if __name__ == '__main__':
     running_data = []
     running = True
     i = args.start
-    while running and (i+i*2 < args.maxsize):
+    while running and (get_target(args.topology,i,'agg') < args.maxsize):
         ldt_sum, tdt_sum, lldp_sum, pkt_sum = 0,0,0,0
         target_length = i + (i * 2)
         disc_stats, link_stats, pkt_stats = [],[],[]
         print('Running for topo_length = {}'.format(target_length))
         for j in range(0, args.trials):
             print('running topology.py')
-            topology_proc = run_topology_discovery(args.controller_ip, args.controller_port, args.controller_name, args.rest_port,(i + i * 2),args.query_interval,args.consec_failures,args.iface,args.no_links)
+            topology_proc = run_topology_discovery(args.controller_ip, args.controller_port, args.controller_name, args.rest_port,get_target(args.topology,i,'agg'),args.query_interval,args.consec_failures,args.iface,args.no_links)
             #time.sleep(1)
             print('running workload.py')
-            run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, [i, i * 2])
+            run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, get_target(args.topology,i,'sep'))
             # Wait for topology.py to finish execution
             topology_proc.wait()  # Wait for topology.py to finish
             print('finished topology.py')
