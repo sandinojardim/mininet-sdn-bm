@@ -59,9 +59,8 @@ def get_target(topo, size, type='sep'):
 
 if __name__ == '__main__':
     args = parser('topology-script')
-    avg_file = 'output/'+args.controller_name+'_average_topology_discovery_time.csv'
-    idv_file = 'output/'+args.controller_name+'_individual_topology_discovery_time.csv'
-    report_file = 'output/'+args.controller_name+'_topology_discovery_time_report.txt'
+    avg_file = 'output/'+args.controller_name+'_'+args.topology+'_average_topology_discovery_time.csv'
+    report_file = 'output/'+args.controller_name+'_'+args.topology+'_topology_discovery_time_report.txt'
     
     data = []
     running_data = []
@@ -128,5 +127,5 @@ if __name__ == '__main__':
         report(report_file,args,running_data)
     
     
-    send_email_with_attachment(f'({args.controller_name}) Task completed', 'Experiment finished successfully', [avg_file,idv_file,report_file])
+    send_email_with_attachment(f'({args.controller_name}) Task completed', 'Experiment finished successfully', [avg_file,report_file])
 
