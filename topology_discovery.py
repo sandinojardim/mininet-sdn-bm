@@ -1,6 +1,5 @@
 import requests
-import subprocess, signal
-import time, datetime
+import time
 from arguments_parser import parser
 from global_variables import *
 from scapy.all import *
@@ -15,26 +14,30 @@ def get_target_link():
     return value
 
 def is_ofpt_packet_out(packet):
-    global start_time, total_packets, count_lldp
+    global start_time, total_packets, total_lldp, count_packets, count_lldp
     total_packets += len(packet)
+    count_packets += 1
     if 'OFPTPacketOut' in packet.summary():
         start_time = time.time()
         if(packet.getlayer(LLDPDU)):
-            count_lldp += len(packet)
+            total_lldp += len(packet)
+            count_lldp +=1
         return True
     else:
         return False
 
 def last_ofpt_packet_in(packet):
-    global last_time_pkt_in, total_packets, count_lldp
+    global last_time_pkt_in, total_packets, total_lldp, count_packets, count_lldp
     total_packets += len(packet)
+    count_packets += 1
     if topology_match or fail:
         return True
     else:
         if 'OFPTPacketIn' in packet.summary():
             last_time_pkt_in = time.time()
             if(packet.getlayer(LLDPDU)):
-                count_lldp += len(packet)
+                total_lldp += len(packet)
+                count_lldp +=1
         return False
 
 
@@ -165,9 +168,9 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
         topology_discovery_time = calculate_topology_discovery_time(start_time, end_time)
         with open('output/topo_disc_'+controller+'.txt', 'a') as f:
             if args.no_links:
-                f.write(f"{topology_discovery_time},{0.0},{count_lldp},{total_packets}\n")
+                f.write(f"{topology_discovery_time},{0.0},{total_lldp},{count_lldp},{total_packets},{count_packets}\n")
             else:
-                f.write(f"{topology_discovery_time},{end_time_links-start_time},{count_lldp},{total_packets}\n")
+                f.write(f"{topology_discovery_time},{end_time_links-start_time},{total_lldp},{count_lldp},{total_packets},{count_packets}\n")
 
 if __name__ == '__main__':
 
