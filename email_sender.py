@@ -58,4 +58,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    send_email_with_attachment(args.subject, args.message, args.attachment)
+    send_email_with_attachment(args.subject, args.message, args.attach)
