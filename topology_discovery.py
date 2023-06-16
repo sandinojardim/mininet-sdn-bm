@@ -97,9 +97,6 @@ def calculate_topology_discovery_time(start_time, end_time):
     return topology_discovery_time
 
 
-
-
-
 def start_pkt_in_sniff():
     global pkt_in_sniff
     pkt_in_sniff = sniff(iface=args.iface, filter=f'tcp and dst port {args.controller_port}', stop_filter=last_ofpt_packet_in)
@@ -124,7 +121,7 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
 
     #print(' Start sniffing Packet-In messages after the first sniff ends')
     # Query the controller every t=3 seconds to obtain the discovered network topology information
-    consecutive_failures = 0
+    consecutive_failures, consec_link_failures = 0,0
     while True:
         topology, links = get_topology(controller,ctrl_ip, rest_port)
         print(topology,links)
@@ -146,7 +143,12 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
                     end_time_links = last_time_pkt_in
                     break
                 else:
-                    topology_match = False
+                    consec_link_failures +=1
+                    if consec_link_failures >= args.consec_link_failures:
+                        topology_match = False
+                        with open('output/topo_disc_'+controller+'.txt', 'a') as f:
+                            f.write("-1.0\n") #flag for script stop
+                        break
         else:
             consecutive_failures += 1
             if consecutive_failures >= args.consec_failures:
@@ -162,7 +164,10 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
         print('total packets: ',total_packets)
         topology_discovery_time = calculate_topology_discovery_time(start_time, end_time)
         with open('output/topo_disc_'+controller+'.txt', 'a') as f:
-            f.write(f"{topology_discovery_time},{end_time_links-start_time},{count_lldp},{total_packets}\n")
+            if args.no_links:
+                f.write(f"{topology_discovery_time},{0.0},{count_lldp},{total_packets}\n")
+            else:
+                f.write(f"{topology_discovery_time},{end_time_links-start_time},{count_lldp},{total_packets}\n")
 
 if __name__ == '__main__':
 
