@@ -54,7 +54,7 @@ if __name__ == '__main__':
         
     parser.add_argument('-s','--subject', help='Subject of the message')
     parser.add_argument('-m','--message', help='Content of the message')
-    parser.add_argument('-a','--attach', help='PATH/TO/FILE')
+    parser.add_argument('-a','--attach', nargs='+', help='PATH/TO/FILE')
 
     args = parser.parse_args()
 
