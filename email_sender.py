@@ -1,4 +1,4 @@
-import smtplib
+import smtplib, argparse
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
@@ -48,3 +48,14 @@ def send_email_with_attachment(subject, message, attachment_path):
 
     # Disconnect from the server
     server.quit()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Script to send emails with results from DEI cloud-server.')
+        
+    parser.add_argument('-s','--subject', help='Subject of the message')
+    parser.add_argument('-m','--message', help='Content of the message')
+    parser.add_argument('-a','--attach', help='PATH/TO/FILE')
+
+    args = parser.parse_args()
+
+    send_email_with_attachment(args.subject, args.message, args.attachment)
