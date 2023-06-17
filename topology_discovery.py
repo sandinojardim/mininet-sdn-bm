@@ -150,14 +150,14 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
                     if consec_link_failures >= args.consec_link_failures:
                         topology_match = False
                         with open('output/topo_disc_'+controller+'.txt', 'a') as f:
-                            f.write("-1.0\n") #flag for script stop
+                            f.write(f"{args.consec_failures * args.query_interval},{args.consec_failures * args.query_interval},{total_lldp},{count_lldp},{total_packets},{count_packets}\n")
                         break
         else:
             consecutive_failures += 1
             if consecutive_failures >= args.consec_failures:
                 fail = True
                 with open('output/topo_disc_'+controller+'.txt', 'a') as f:
-                    f.write("-1.0\n") #flag for script stop
+                    f.write(f"{args.consec_failures * args.query_interval},{args.consec_failures * args.query_interval},{total_lldp},{count_lldp},{total_packets},{count_packets}\n")
                 break
 
         time.sleep(QUERY_INTERVAL)
