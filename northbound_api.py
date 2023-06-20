@@ -168,7 +168,7 @@ if __name__ == '__main__':
         time.sleep(args.query_interval)
         total_response_time += response_time
             
-    if args.thput:
+    if args.throughput:
         max_throughput = evaluate_max_throughput(args.controller_name, args.controller_ip, args.rest_port, args.max_requests, args.duration)
         print(f"Max Throughput: {max_throughput} requests per second")
     
