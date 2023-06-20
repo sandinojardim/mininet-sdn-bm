@@ -75,6 +75,7 @@ def parser(program):
         return parser.parse_args()
     elif program == 'northbound_api':
         parser = argparse.ArgumentParser(description='Throughput and Average Time for SDN Controller respond to API Topo Requests')
+        parser.add_argument('-rt', '--request_time', action=argparse.BooleanOptionalAction, default=False,help='Enable Request Time Measurement')
         parser.add_argument('-ip','--controller_ip', help='Controller IP address', default='localhost')
         parser.add_argument('-p','--controller_port', help='Controller port number',default=6653)
         parser.add_argument('-n','--controller_name', help='Controller name')

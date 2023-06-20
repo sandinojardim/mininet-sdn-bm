@@ -159,14 +159,17 @@ if __name__ == '__main__':
     print('running workload.py')
     run_simulation_proc = run_workload_simulation(args.controller_ip,args.controller_port,args.topology, get_target(args.topology,args.topo_size,'sep'))
     
-    succ_test = 0
-    while succ_test < (num_tests):
-        response_time = get_response_time(args.controller_name, args.controller_ip, args.rest_port)
-        print(response_time)
-        if response_time > 0:
-            succ_test += 1
-        time.sleep(args.query_interval)
-        total_response_time += response_time
+    if args.request_time:
+        succ_test = 0
+        while succ_test < (num_tests):
+            response_time = get_response_time(args.controller_name, args.controller_ip, args.rest_port)
+            print(response_time)
+            if response_time > 0:
+                succ_test += 1
+            time.sleep(args.query_interval)
+            total_response_time += response_time
+        average_response_time = total_response_time / num_tests
+        print(f"Average Response Time: {average_response_time}")
             
     if args.throughput:
         max_throughput = evaluate_max_throughput(args.controller_name, args.controller_ip, args.rest_port, args.max_requests, args.duration)
@@ -182,6 +185,4 @@ if __name__ == '__main__':
 
     
 
-    average_response_time = total_response_time / num_tests
-
-    print(f"Average Response Time: {average_response_time}")
+    
