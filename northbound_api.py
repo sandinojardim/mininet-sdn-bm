@@ -99,7 +99,7 @@ def measure_throughput(controller, CONTROLLER_IP, REST_PORT, num_requests, durat
     url = ''
     auth = ()
     if controller == 'onos':
-        url = f'http://{CONTROLLER_IP}:{REST_PORT}/onos/v1/topology/devices'
+        url = f'http://{CONTROLLER_IP}:{REST_PORT}/onos/v1/topology'
         auth = ('onos','rocks')
     elif controller == 'floodlight':
         url = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
