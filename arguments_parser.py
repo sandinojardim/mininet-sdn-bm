@@ -73,8 +73,8 @@ def parser(program):
         parser.add_argument('-if','--iface', help='Interface to listen',default='lo')
         parser.add_argument('-k', '--no_links', action=argparse.BooleanOptionalAction, default=False,help='Enable or disable link discovery time count')
         return parser.parse_args()
-    elif program == 'response_time':
-        parser = argparse.ArgumentParser(description='Average Time for SDN Controller respond to API Topo Requests')
+    elif program == 'northbound_api':
+        parser = argparse.ArgumentParser(description='Throughput and Average Time for SDN Controller respond to API Topo Requests')
         parser.add_argument('-ip','--controller_ip', help='Controller IP address', default='localhost')
         parser.add_argument('-p','--controller_port', help='Controller port number',default=6653)
         parser.add_argument('-n','--controller_name', help='Controller name')
@@ -83,14 +83,7 @@ def parser(program):
         parser.add_argument('-q','--query_interval', help='Interval between next topology size query',type=int)
         parser.add_argument('-nt','--num_tests', help='Number of tests',type=int)
         parser.add_argument('-t','--topology', choices=['3-tier', 'star', 'mesh', 'leaf-spine'], help='Topology type')
-        return parser.parse_args()
-    elif program == 'throughput':
-        parser = argparse.ArgumentParser(description='SDN Controller throughput to API Topo Requests')
-        parser.add_argument('-ip','--controller_ip', help='Controller IP address', default='localhost')
-        parser.add_argument('-p','--controller_port', help='Controller port number',default=6653)
-        parser.add_argument('-n','--controller_name', help='Controller name')
-        parser.add_argument('-r','--rest_port', help='REST API port number',default=8181)
-        parser.add_argument('-nr','--num_requests', help='Number of requests',type=int)
+        parser.add_argument('-tp', '--throughput', action=argparse.BooleanOptionalAction, default=False,help='Enable Thput Measurement')
         parser.add_argument('-mr','--max_requests', help='Max number of requests',type=int)
         parser.add_argument('-d','--duration', help='Duration of the test',type=int)
         return parser.parse_args()
