@@ -162,7 +162,7 @@ if __name__ == '__main__':
     if args.request_time:
         succ_test = 0
         while succ_test < (num_tests):
-            response_time = get_response_time(args.controller_name, args.controller_ip, args.rest_port, args.step)
+            response_time = get_response_time(args.controller_name, args.controller_ip, args.rest_port)
             if response_time > 0:
                 print(response_time)
                 succ_test += 1
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         print(f"Average Response Time: {average_response_time}")
             
     if args.throughput:
-        max_throughput = evaluate_max_throughput(args.controller_name, args.controller_ip, args.rest_port, args.max_requests, args.duration)
+        max_throughput = evaluate_max_throughput(args.controller_name, args.controller_ip, args.rest_port, args.max_requests, args.duration, args.step)
         print(f"Max Throughput: {max_throughput} requests per second")
     
     run_simulation_proc.stdin.flush()
