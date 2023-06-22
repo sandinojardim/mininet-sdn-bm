@@ -129,8 +129,8 @@ def measure_throughput(controller, CONTROLLER_IP, REST_PORT, num_requests, durat
 
     return throughput
 
-def evaluate_max_throughput(controller, CONTROLLER_IP, REST_PORT, max_requests, duration):
-    step = 10  # Number of concurrent requests increment per step
+def evaluate_max_throughput(controller, CONTROLLER_IP, REST_PORT, max_requests, duration, increment):
+    step = increment  # Number of concurrent requests increment per step
     current_requests = step
     max_throughput = 0.0
 
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     if args.request_time:
         succ_test = 0
         while succ_test < (num_tests):
-            response_time = get_response_time(args.controller_name, args.controller_ip, args.rest_port)
+            response_time = get_response_time(args.controller_name, args.controller_ip, args.rest_port, args.step)
             if response_time > 0:
                 print(response_time)
                 succ_test += 1

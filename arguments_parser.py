@@ -87,4 +87,5 @@ def parser(program):
         parser.add_argument('-tp', '--throughput', action=argparse.BooleanOptionalAction, default=False,help='Enable Thput Measurement')
         parser.add_argument('-mr','--max_requests', help='Max number of requests',type=int)
         parser.add_argument('-d','--duration', help='Duration of the test',type=int)
+        parser.add_argument('-i','--step', help='Increment step',type=int)
         return parser.parse_args()
