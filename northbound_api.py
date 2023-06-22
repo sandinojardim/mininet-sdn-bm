@@ -163,8 +163,8 @@ if __name__ == '__main__':
         succ_test = 0
         while succ_test < (num_tests):
             response_time = get_response_time(args.controller_name, args.controller_ip, args.rest_port)
-            print(response_time)
             if response_time > 0:
+                print(response_time)
                 succ_test += 1
             time.sleep(args.query_interval)
             total_response_time += response_time
