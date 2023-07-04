@@ -1,6 +1,6 @@
 import requests
 
-CONTROLLER_IP = 'localhost'
+CONTROLLER_IP = '10.3.3.106'
 REST_PORT = '8081'
 
 url1 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
