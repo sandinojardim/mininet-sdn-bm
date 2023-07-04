@@ -17,7 +17,7 @@ try:
         link_count = len(links)*2
         host_count = len(hosts['devices'])
         print(hosts['devices'])
-        print(f'Topo = {len(switches)} | Links = {link_count} | Hosts = {link_count - host_count}')
+        print(f'Topo = {len(switches)} | Links = {link_count} | Hosts = {host_count - link_count}')
     else:
         print(f"Error: {response1.status_code} - {response1.text}")
 except requests.exceptions.RequestException as e:
