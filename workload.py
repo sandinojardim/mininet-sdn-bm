@@ -15,7 +15,7 @@ def generate_topology(topology_type, topology_parameters):
         for i in range(1, num_switches+1):
             if i != hub_switch:
                 connections[i-1].append(hub_switch)
-                #connections[hub_switch-1].append(i) #if bidirectional links
+                
         return connections, num_switches
     elif topology_type == 'mesh':
         num_switches = topology_parameters[0]
@@ -37,7 +37,7 @@ def generate_topology(topology_type, topology_parameters):
                 connections[i].append(i+2)
             for j in range(num_aggs):
                 connections[i].append(j+num_cores+1)
-                #connections[j+num_cores].append(i) #if bidirectional
+                
         # Connect aggregation switches horizontally and to half of the access switches
         start = num_cores
         for i in range(num_aggs):
@@ -48,7 +48,7 @@ def generate_topology(topology_type, topology_parameters):
                     connections[start+i].append(start+num_aggs+j+1)
                 else:
                     connections[start+i].append(start+num_aggs+(num_access//2)+j+1)
-                #connections[start+j].append(i+num_cores) #if bidirectional
+                
         if num_access % 2 == 1:
             connections[start+i].append(num_cores+num_aggs+num_access)
         return connections, (num_cores+num_aggs+num_access)
@@ -76,13 +76,12 @@ def start_traffic(clients, servers):
 
 
 
-def generate_network(topology, num_switches, client_links, server_links,controller_data):
-    #tirei net daqui e deixei como variável global
-
+def generate_network(topology, num_switches, client_links, server_links, controller_data):
     switches = []
     for i in range(num_switches):
-        switch = net.addSwitch('s{}'.format(i+1),protocols=['OpenFlow13'])
+        switch = net.addSwitch('s{}'.format(i+1), protocols=['OpenFlow13'])
         switches.append(switch)
+    
     clients = []
     for i in range(len(client_links)):
         host = net.addHost('cl{}'.format(i+1))
@@ -90,6 +89,7 @@ def generate_network(topology, num_switches, client_links, server_links,controll
         switch_index, port_number = client_links[i]
         switch = switches[switch_index - 1]
         net.addLink(host, switch, port1=0, port2=port_number)
+    
     servers = []
     for i in range(len(server_links)):
         host = net.addHost('srv{}'.format(i+1))
@@ -97,17 +97,24 @@ def generate_network(topology, num_switches, client_links, server_links,controll
         switch_index, port_number = server_links[i]
         switch = switches[switch_index - 1]
         net.addLink(host, switch, port1=0, port2=port_number)
-
+    additional_links = []
     for i, neighbors in enumerate(topology):
         switch = switches[i]
         for neighbor in neighbors:
             if neighbor <= num_switches:
                 neighbor_switch = switches[neighbor - 1]
                 net.addLink(switch, neighbor_switch)
+                link = net.addLink(neighbor_switch, switch)
+                #print(link)
+                #link.intf2.config(up=False)  # Set the second interface of the link to down
+                interface_name = link.intf2.name  # Get the name of the second interface
+                additional_links.append(interface_name)
+                subprocess.run(['ifconfig', interface_name, 'down'])  # Set the interface to a down state
+
     
     c0 = net.addController('c0', controller=RemoteController, ip=controller_data[0], port=controller_data[1])
     
-    return clients, servers, c0
+    return clients, servers, additional_links
 
 
 if __name__ == '__main__':
@@ -115,9 +122,9 @@ if __name__ == '__main__':
     input_param = parser('workload')
     print(input_param)
     topology, num_sw = generate_topology(input_param[0],input_param[1])
-    client_links = []
-    server_links = []
-    cl, srv, ctrl = generate_network(topology, num_sw, client_links, server_links,input_param[2])
+    client_links = [[1,1]]
+    server_links = [[2,1]]
+    cl, srv, additional_links = generate_network(topology, num_sw, client_links, server_links,input_param[2])
 
     net.start()
     with open('output/link_length.txt','w') as f:
@@ -126,5 +133,23 @@ if __name__ == '__main__':
     #start_traffic(cl, srv)
     #time.sleep(10)
 
+    # num_links_to_bring_up = 3  # Adjust this number as per your requirement
+    # intf2_links = random.sample(additional_links, num_links_to_bring_up)
+    # for link in intf2_links:
+    #     print(link)
+    #     subprocess.run(['ifconfig', link, 'up'])
+    additional_hosts = []
+    num_hosts_to_add = 2  # Number of additional hosts to add
+    switches_to_attach = [1, 2]  # List of switches to attach the hosts to
+    for i in range(num_hosts_to_add):
+        switch_index = random.choice(switches_to_attach)  # Choose a random switch to attach the host
+        switch = net.switches[switch_index - 1]
+        host = net.addHost(f'h{i+len(client_links)}')
+        additional_hosts.append(host)
+        switch_port = len(switch.ports)  # Find the next available port on the switch
+        link = net.addLink(host, switch, port1=0, port2=switch_port)
+        interface_name = link.intf1.name  # Get the name of the host's interface connected to the switch
+        host.setIP('10.0.0.{}/8'.format(i+len(client_links)), intf=interface_name)  # Assign an IP address to the host
+    CLI(net)
     net.stop()
     subprocess.run(['mn', '-c'])
