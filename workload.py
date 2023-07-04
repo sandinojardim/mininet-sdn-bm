@@ -144,12 +144,12 @@ if __name__ == '__main__':
     for i in range(num_hosts_to_add):
         switch_index = random.choice(switches_to_attach)  # Choose a random switch to attach the host
         switch = net.switches[switch_index - 1]
-        host = net.addHost(f'h{i+len(client_links)}')
+        host = net.addHost(f'h{i}')
         additional_hosts.append(host)
         switch_port = len(switch.ports)  # Find the next available port on the switch
         link = net.addLink(host, switch, port1=0, port2=switch_port)
         interface_name = link.intf1.name  # Get the name of the host's interface connected to the switch
-        host.setIP('10.0.0.{}/8'.format(i+len(client_links)), intf=interface_name)  # Assign an IP address to the host
+        host.setIP('10.0.0.{}/8'.format(i+len(client_links)+len(server_links)+1), intf=interface_name)  # Assign an IP address to the host
     CLI(net)
     net.stop()
     subprocess.run(['mn', '-c'])
