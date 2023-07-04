@@ -16,7 +16,7 @@ try:
         hosts = response3.json()
         host_count = len(hosts['devices'])
         print(hosts)
-        print(f'Topo = {len(switches)} | Links = {len(links)*2} | Hosts = {hosts}')
+        print(f'Topo = {len(switches)} | Links = {len(links)*2} | Hosts = {host_count}')
     else:
         print(f"Error: {response1.status_code} - {response1.text}")
 except requests.exceptions.RequestException as e:
