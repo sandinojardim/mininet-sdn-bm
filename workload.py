@@ -122,8 +122,8 @@ if __name__ == '__main__':
     input_param = parser('workload')
     print(input_param)
     topology, num_sw = generate_topology(input_param[0],input_param[1])
-    client_links = [[1,1]]
-    server_links = [[2,1]]
+    client_links = [[1,1],[2,1]]
+    server_links = [[3,1],[3,2]]
     cl, srv, additional_links = generate_network(topology, num_sw, client_links, server_links,input_param[2])
 
     net.start()
