@@ -14,6 +14,7 @@ try:
         switches = response1.json()
         links = response2.json()
         hosts = response3.json()
+        print(hosts)
         print(f'Topo = {len(switches)} | Links = {len(links)*2} | Hosts = {len(hosts)}')
     else:
         print(f"Error: {response1.status_code} - {response1.text}")
