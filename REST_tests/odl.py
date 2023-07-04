@@ -15,7 +15,8 @@ try:
         if 'node' in data['nodes']:
             nodes = data['nodes']['node']
             links = sum(len(node.get('node-connector', [])) for node in nodes)
-            print(f'Links = {len(nodes)} | {(links-len(nodes))}')#odl adds one local link for each sw
+            host_count = sum(1 for node in nodes if node.get('node-connector', []) and node.get('node-type') == 'OF')
+            print(f'Switches = {len(nodes)} | Links = {(links-len(nodes))} | Hosts = {host_count}')#odl adds one local link for each sw
         else:
             print('nothing')
     else:

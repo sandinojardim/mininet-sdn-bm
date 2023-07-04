@@ -9,5 +9,6 @@ response = requests.get(url, headers=headers,auth=('onos','rocks'))
 response_data = response.json()
 topology = response_data['devices']
 links = response_data['links']
+hosts = response_data['hosts']
 
-print(f'Topo = {topology} | Links = {links}')
+print(f'Topo = {topology} | Links = {links} | Hosts = {hosts}')
