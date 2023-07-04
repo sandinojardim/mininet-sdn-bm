@@ -5,7 +5,7 @@ REST_PORT = '8081'
 
 url1 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/core/controller/switches/json'
 url2 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/topology/links/json'
-url3 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/topology/hosts/json'
+url3 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/topology/device/json'
 try:
     response1 = requests.get(url1)
     response2 = requests.get(url2)
