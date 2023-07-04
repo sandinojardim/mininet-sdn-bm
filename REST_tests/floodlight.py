@@ -14,9 +14,10 @@ try:
         switches = response1.json()
         links = response2.json()
         hosts = response3.json()
+        link_count = len(links)*2
         host_count = len(hosts['devices'])
-        print(hosts)
-        print(f'Topo = {len(switches)} | Links = {len(links)*2} | Hosts = {host_count}')
+        print(hosts['devices'])
+        print(f'Topo = {len(switches)} | Links = {link_count} | Hosts = {link_count - host_count}')
     else:
         print(f"Error: {response1.status_code} - {response1.text}")
 except requests.exceptions.RequestException as e:
