@@ -151,6 +151,7 @@ if __name__ == '__main__':
         end_time = time.time()
     
         print(f'time = {end_time - start_time}')
+        CLI(net)
         
 
     if args.hosts:
@@ -179,6 +180,7 @@ if __name__ == '__main__':
             continue
         end_time = time.time()
         print(f'time = {end_time - start_time}')
-    CLI(net)
+        CLI(net)    
+    
     net.stop()
     subprocess.run(['mn', '-c'])
