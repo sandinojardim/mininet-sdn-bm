@@ -68,7 +68,7 @@ class ControllerMonitor(threading.Thread):
                     self.memory_usage.append(float(mem_percent))
 
                 # Sleep for a specific interval before collecting the next measurement
-                time.sleep(1)  # Adjust the interval as needed
+                time.sleep(0.5)  # Adjust the interval as needed
 
             except paramiko.AuthenticationException:
                 print("Authentication failed. Please check the credentials.")
