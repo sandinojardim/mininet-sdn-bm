@@ -2,42 +2,6 @@ import paramiko, psutil
 import time
 import threading
 
-# class ControllerMonitor(threading.Thread):
-#     def __init__(self, vm_ip, username, password):
-#         super(ControllerMonitor, self).__init__()
-#         self.vm_ip = vm_ip
-#         self.username = username
-#         self.password = password
-#         self.cpu_usage = []
-#         self.memory_usage = []
-#         self.stop_event = threading.Event()
-
-#     def run(self):
-#         client = paramiko.SSHClient()
-#         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-#         client.connect(self.vm_ip, username=self.username, password=self.password)
-
-#         while not self.stop_event.is_set():
-#             # Execute command to retrieve CPU and memory usage
-#             stdin, stdout, stderr = client.exec_command("top -bn1 | grep 'Cpu' && free -m | grep 'Mem'")
-
-#             # Parse the output to extract relevant information
-#             cpu_info = stdout.readline().strip()
-#             memory_info = stdout.readline().strip()
-
-#             # Process CPU and memory information as needed
-#             # Here, you can store the measurements in lists
-#             self.cpu_usage.append(parse_cpu_info(cpu_info))
-#             self.memory_usage.append(parse_memory_info(memory_info))
-
-#             # Sleep for a specific interval before collecting the next measurement
-#             time.sleep(1)  # Adjust the interval as needed
-
-#         client.close()
-
-#     def stop(self):
-#         self.stop_event.set()
-
 class ControllerMonitor(threading.Thread):
     def __init__(self, process_name, remote_address, remote_username, remote_password):
         super(ControllerMonitor, self).__init__()
@@ -77,6 +41,8 @@ class ControllerMonitor(threading.Thread):
         self.ssh_client.close()
 
     def stop(self):
+        while len(self.cpu_usage) < 1 and len(self.memory_usage) < 1:
+            continue
         self.stop_event.set()
 
 def parse_cpu_info(cpu_info):
