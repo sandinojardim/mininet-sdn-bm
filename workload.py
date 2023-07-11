@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
     if args.links:
         start_time = time.time()
-        num_links_to_bring_up = 6  # Adjust this number as per your requirement
+        num_links_to_bring_up = args.links_to_add  # Adjust this number as per your requirement
         existent_links = get_target_link()
         intf2_links = random.sample(additional_links, num_links_to_bring_up)
         for link in intf2_links:
@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
     if args.hosts:
         additional_hosts = []
-        num_hosts_to_add = 3  # Number of additional hosts to add
+        num_hosts_to_add = args.hosts_to_add  # Number of additional hosts to add
         switches_to_attach = [1,2,3,4,5,6]  # List of switches to attach the hosts to
         tuples = []
         for i in range(num_hosts_to_add):

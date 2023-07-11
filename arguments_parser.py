@@ -44,6 +44,8 @@ def parser(program):
         parser.add_argument('--num-spines', type=int, help='Number of spine switches (for leaf-spine topology)')
         parser.add_argument('-l', '--links', action=argparse.BooleanOptionalAction, default=False,help='Enable or disable link discovery time count')
         parser.add_argument('--hosts', action=argparse.BooleanOptionalAction, default=False,help='Enable or disable host discovery time count')
+        parser.add_argument('--hosts_to_add', type=int, help='Number of hosts to be added after start')
+        parser.add_argument('--links_to_add', type=int, help='Number of links to be added after start')
         args = parser.parse_args()
 
         topology_type = args.topology
