@@ -9,8 +9,7 @@ def setup(controller,CONTROLLER_IP, REST_PORT, tuples):
         config = open('json/onos_dhcp.json').read()
         response = requests.post(url, data=config, headers=headers,auth=('onos','rocks'))
         if response.status_code == 200:
-                resp = response.json()
-                return resp
+                return response
         else:
             print(f"Error: {response.status_code} - {response.text}")
     elif controller == 'floodlight':
