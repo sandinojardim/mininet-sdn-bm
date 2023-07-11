@@ -183,9 +183,9 @@ def RFC8456_net_topology_discovery_time(len_topology,controller,ctrl_ip, rest_po
         topology_discovery_time = calculate_topology_discovery_time(start_time, end_time)
         with open('output/topo_disc_'+controller+'.txt', 'a') as f:
             if args.no_links:
-                f.write(f"{topology_discovery_time},{topology_discovery_time},{total_lldp},{count_lldp},{total_packets},{count_packets}\n")
+                f.write(f"{topology_discovery_time},{topology_discovery_time},{total_lldp},{count_lldp},{total_packets},{count_packets},{avg_cpu},{avg_memory}\n")
             else:
-                f.write(f"{topology_discovery_time},{end_time_links-start_time},{total_lldp},{count_lldp},{total_packets},{count_packets}\n")
+                f.write(f"{topology_discovery_time},{end_time_links-start_time},{total_lldp},{count_lldp},{total_packets},{count_packets},{avg_cpu},{avg_memory}\n")
 
 if __name__ == '__main__':
 
