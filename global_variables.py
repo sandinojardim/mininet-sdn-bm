@@ -1,3 +1,5 @@
+from ControllerMonitor import *
+
 start_time = None
 end_time = None
 pkt_in_sniff = None
@@ -9,3 +11,5 @@ total_packets = 0
 count_packets = 0
 total_lldp = 0
 count_lldp = 0
+
+controller_monitor = ControllerMonitor('java','10.3.3.106', 'admin', 'b1vbx11')
