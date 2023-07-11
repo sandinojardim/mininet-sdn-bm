@@ -5,6 +5,8 @@ from global_variables import *
 from scapy.all import *
 from scapy.contrib.openflow3 import OFPTPacketIn, OFPTPacketOut, OpenFlow3
 from scapy.contrib.lldp import LLDPDU
+import logging
+logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.DEBUG)
 
 
 
@@ -41,7 +43,7 @@ def last_ofpt_packet_in(packet):
     else:
         if 'OFPTPacketIn' in packet.summary():
             last_time_pkt_in = time.time()
-            print('')
+            logging.debug(last_time_pkt_in)
             if(packet.getlayer(LLDPDU)):
                 total_lldp += len(packet)
                 count_lldp +=1
