@@ -5,10 +5,9 @@ def setup(controller,CONTROLLER_IP, REST_PORT, tuples):
         url = f'http://{CONTROLLER_IP}:{REST_PORT}/onos/v1/network/configuration/'
         headers = {
             'Content-Type': 'application/json',
-            'Accept-Type': 'application/json'
         }
         config = open('json/onos_dhcp.json').read()
-        response = requests.get(url, data=config, headers=headers,auth=('onos','rocks'))
+        response = requests.post(url, data=config, headers=headers,auth=('onos','rocks'))
         if response.status_code == 200:
                 resp = response.json()
                 return resp
