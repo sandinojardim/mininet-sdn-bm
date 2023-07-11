@@ -108,12 +108,13 @@ def generate_network(topology, num_switches, client_links, server_links, control
             if neighbor <= num_switches:
                 neighbor_switch = switches[neighbor - 1]
                 net.addLink(switch, neighbor_switch)
-                link = net.addLink(neighbor_switch, switch)
-                #print(link)
-                #link.intf2.config(up=False)  # Set the second interface of the link to down
-                interface_name = link.intf2.name  # Get the name of the second interface
-                additional_links.append(interface_name)
-                subprocess.run(['ifconfig', interface_name, 'down'])  # Set the interface to a down state
+                if args.links:
+                    link = net.addLink(neighbor_switch, switch)
+                    #print(link)
+                    #link.intf2.config(up=False)  # Set the second interface of the link to down
+                    interface_name = link.intf2.name  # Get the name of the second interface
+                    additional_links.append(interface_name)
+                    subprocess.run(['ifconfig', interface_name, 'down'])  # Set the interface to a down state
 
     
     c0 = net.addController('c0', controller=RemoteController, ip=controller_data[0], port=controller_data[1])
