@@ -150,7 +150,16 @@ if __name__ == '__main__':
             continue
         end_time = time.time()
     
-        print(f'time = {end_time - start_time}')
+        print(f'link on time = {end_time - start_time}')
+
+        start_time = time.time()
+        for link in intf2_links:
+            subprocess.run(['ifconfig', link, 'down'])
+        while get_link_size(args.controller_name,args.controller_ip, args.rest_port) != existent_links:
+            continue
+        end_time = time.time()
+    
+        print(f'link off time = {end_time - start_time}')
         CLI(net)
         
 
@@ -158,6 +167,7 @@ if __name__ == '__main__':
         additional_hosts = []
         num_hosts_to_add = args.hosts_to_add  # Number of additional hosts to add
         switches_to_attach = [1,2,3,4,5,6]  # List of switches to attach the hosts to
+        attached_hosts = []  # List to store the attached host tuples (switch, port)
         tuples = []
         for i in range(num_hosts_to_add):
             switch_index = random.choice(switches_to_attach)  # Choose a random switch to attach the host
@@ -168,6 +178,7 @@ if __name__ == '__main__':
             link = net.addLink(host, switch, port1=0, port2=switch_port)
             interface_name = link.intf1.name  # Get the name of the host's interface connected to the switch
             switch.attach(f's{switch_index}-eth{switch_port}')
+            attached_hosts.append((switch_index, switch_port))  # Store the switch and port tuple
             if i == 0:
                 start_time = time.time()
             tuples.append([switch_index,switch_port]) # this is only for floodlight
@@ -179,7 +190,16 @@ if __name__ == '__main__':
         while get_host_size(args.controller_name,args.controller_ip, args.rest_port) != num_hosts_to_add:
             continue
         end_time = time.time()
-        print(f'time = {end_time - start_time}')
+        print(f'host on time = {end_time - start_time}')
+
+        start_time = time.time()
+        for switch_index, switch_port in attached_hosts:
+            switch = net.switches[switch_index - 1]
+            switch.detach(f's{switch_index}-eth{switch_port}')
+        while get_host_size(args.controller_name,args.controller_ip, args.rest_port) != 0:
+            continue
+        end_time = time.time()
+        print(f'host off time = {end_time - start_time}')
         CLI(net)    
     
     net.stop()
