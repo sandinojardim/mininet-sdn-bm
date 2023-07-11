@@ -41,6 +41,7 @@ def last_ofpt_packet_in(packet):
     else:
         if 'OFPTPacketIn' in packet.summary():
             last_time_pkt_in = time.time()
+            print('last pkt in = ',last_time_pkt_in)
             if(packet.getlayer(LLDPDU)):
                 total_lldp += len(packet)
                 count_lldp +=1
