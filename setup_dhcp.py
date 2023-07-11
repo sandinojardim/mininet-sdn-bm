@@ -7,13 +7,13 @@ def setup(controller,CONTROLLER_IP, REST_PORT, tuples):
             'Content-Type': 'application/json',
             'Accept-Type': 'application/json'
         }
-        response = requests.get(url, headers=headers,auth=('onos','rocks'))
-        response_data = response.json()
-        #print(response_data)
-        # Extract the topology information from the response
-        topology = response_data['devices']
-        links = response_data['links']
-        return topology, links
+        config = open('json/onos_dhcp.json').read()
+        response = requests.get(url, data=config, headers=headers,auth=('onos','rocks'))
+        if response.status_code == 200:
+                resp = response.json()
+                return resp
+        else:
+            print(f"Error: {response.status_code} - {response.text}")
     elif controller == 'floodlight':
         json_data = {
            "switchports": []
