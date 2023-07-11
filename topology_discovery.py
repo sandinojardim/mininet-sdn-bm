@@ -35,6 +35,8 @@ def last_ofpt_packet_in(packet):
     count_packets += 1
     if topology_match or fail:
         controller_monitor.stop() #stop cpu/mem monitoring
+        if last_time_pkt_in == None:
+            last_time_pkt_in = time.time()
         return True
     else:
         if 'OFPTPacketIn' in packet.summary():
