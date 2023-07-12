@@ -174,12 +174,12 @@ if __name__ == '__main__':
         
 
     if args.hosts:
+        sum_times_on, sum_times_off = 0,0
         for i in range(0,10):
             additional_hosts = []
             num_hosts_to_add = args.hosts_to_add  # Number of additional hosts to add
             switches_to_attach = [1,2,3,4,5,6]  # List of switches to attach the hosts to
             attached_hosts = []  # List to store the attached host tuples (switch, port)
-            sum_times_on, sum_times_off = 0,0
             tuples = []
             for j in range(num_hosts_to_add):
                 switch_index = random.choice(switches_to_attach)  # Choose a random switch to attach the host
@@ -203,6 +203,7 @@ if __name__ == '__main__':
                 continue
             end_time = time.time()
             sum_times_on += (end_time - start_time)
+            print(sum_times_on)
             print(f'host on time_{i} = {end_time - start_time}')
 
             start_time = time.time()
