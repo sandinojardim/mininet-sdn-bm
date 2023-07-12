@@ -156,7 +156,7 @@ if __name__ == '__main__':
             end_time = time.time()
             sum_times_on += (end_time - start_time)
         
-            #print(f'link on time = {end_time - start_time}')
+            print(f'link on time_{i} = {end_time - start_time}')
 
             start_time = time.time()
             for link in intf2_links:
@@ -165,6 +165,7 @@ if __name__ == '__main__':
                 continue
             end_time = time.time()
             sum_times_off += (end_time - start_time)
+            print(f'link off time_{i} = {end_time - start_time}')
             time.sleep(random.randint(1,10))
         print(f'link on avg time = {sum_times_on/10}')
         print(f'link off  avgtime = {sum_times_off/10}')
@@ -201,7 +202,7 @@ if __name__ == '__main__':
                 continue
             end_time = time.time()
             sum_times_on += end_time - start_time
-            #print(f'host on time = {end_time - start_time}')
+            print(f'host on time_{i} = {end_time - start_time}')
 
             start_time = time.time()
             for switch_index, switch_port in attached_hosts:
@@ -211,6 +212,7 @@ if __name__ == '__main__':
                 continue
             end_time = time.time()
             sum_times_off += end_time - start_time
+            print(f'host off time_{i} = {end_time - start_time}')
             time.sleep(random.randint(1,10))
         print(f'link on avg time = {sum_times_on/10}')
         print(f'link off  avgtime = {sum_times_off/10}')
