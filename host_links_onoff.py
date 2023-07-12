@@ -77,7 +77,7 @@ def get_link_size(controller,CONTROLLER_IP, REST_PORT):
                 if 'node' in data['nodes']:
                     nodes = data['nodes']['node']
                     links = sum(len(node.get('node-connector', [])) for node in nodes)
-                    return (links-len(nodes))#odl adds one local link for each sw
+                    return (links-len(nodes))/2 #odl adds one local link for each sw
                 else:
                     return 0
             else:
