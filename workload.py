@@ -151,6 +151,7 @@ if __name__ == '__main__':
             intf2_links = random.sample(additional_links, num_links_to_bring_up)
             for link in intf2_links:
                 subprocess.run(['ifconfig', link, 'up'])
+                
             while get_link_size(args.controller_name,args.controller_ip, args.rest_port) != existent_links+(num_links_to_bring_up*2):
                 continue
             end_time = time.time()
