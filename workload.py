@@ -135,7 +135,9 @@ if __name__ == '__main__':
 
     with open('output/link_length.txt','w') as f:
         f.write(f'{len(net.links)-(len(client_links)+len(server_links))}')
-    CLI(net)
+    
+    if not args.links and not args.hosts:
+        CLI(net)
     
     #start_traffic(cl, srv)
     #time.sleep(10)
