@@ -202,7 +202,7 @@ if __name__ == '__main__':
             while get_host_size(args.controller_name,args.controller_ip, args.rest_port) != num_hosts_to_add:
                 continue
             end_time = time.time()
-            sum_times_on += end_time - start_time
+            sum_times_on += (end_time - start_time)
             print(f'host on time_{i} = {end_time - start_time}')
 
             start_time = time.time()
@@ -212,7 +212,7 @@ if __name__ == '__main__':
             while get_host_size(args.controller_name,args.controller_ip, args.rest_port) != 0:
                 continue
             end_time = time.time()
-            sum_times_off += end_time - start_time
+            sum_times_off += (end_time - start_time)
             print(f'host off time_{i} = {end_time - start_time}')
             time.sleep(random.randint(1,10))
         print(f'link on avg time = {sum_times_on/10}')
