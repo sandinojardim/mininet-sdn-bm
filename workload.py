@@ -181,17 +181,17 @@ if __name__ == '__main__':
             attached_hosts = []  # List to store the attached host tuples (switch, port)
             sum_times_on, sum_times_off = 0,0
             tuples = []
-            for i in range(num_hosts_to_add):
+            for j in range(num_hosts_to_add):
                 switch_index = random.choice(switches_to_attach)  # Choose a random switch to attach the host
                 switch = net.switches[switch_index - 1]
-                host = net.addHost(f'h{i}')
+                host = net.addHost(f'h{j}')
                 additional_hosts.append(host)
                 switch_port = len(switch.ports)  # Find the next available port on the switch
                 link = net.addLink(host, switch, port1=0, port2=switch_port)
                 interface_name = link.intf1.name  # Get the name of the host's interface connected to the switch
                 switch.attach(f's{switch_index}-eth{switch_port}')
                 attached_hosts.append((switch_index, switch_port))  # Store the switch and port tuple
-                if i == 0:
+                if j == 0:
                     start_time = time.time()
                 tuples.append([switch_index,switch_port]) # this is only for floodlight
                 
