@@ -1,3 +1,8 @@
+###############################################################
+#    Script to evaluate avg and max thput on northbound api   #
+###############################################################
+
+
 import requests, subprocess, threading
 from arguments_parser import parser
 import time
