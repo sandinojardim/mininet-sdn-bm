@@ -1,16 +1,16 @@
 {
     "switchports": [
         {
-            "dpid": "3",
-            "port": "9"
-        },
-        {
-            "dpid": "3",
-            "port": "10"
+            "dpid": "2",
+            "port": "8"
         },
         {
             "dpid": "6",
-            "port": "3"
+            "port": "5"
+        },
+        {
+            "dpid": "2",
+            "port": "9"
         }
     ]
 }

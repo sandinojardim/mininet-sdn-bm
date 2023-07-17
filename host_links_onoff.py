@@ -5,6 +5,7 @@ from global_variables import *
 from scapy.all import *
 from scapy.contrib.openflow3 import OFPTPacketIn, OFPTPacketOut, OpenFlow3
 from scapy.contrib.lldp import LLDPDU
+from setup_dhcp import setup
 
 
 
@@ -136,6 +137,82 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
 
+
+def on_off_link(links_to_add, additional_links, controller_name, controller_ip, rest_port):
+    sum_times_on, sum_times_off = 0,0
+    for i in range(0,10):
+        start_time = time.time()
+        num_links_to_bring_up = links_to_add  # Adjust this number as per your requirement
+        existent_links = get_target_link()
+        intf2_links = random.sample(additional_links, num_links_to_bring_up)
+        for link in intf2_links:
+            subprocess.run(['ifconfig', link, 'up'])
+            
+        while get_link_size(controller_name,controller_ip, rest_port) != existent_links+(num_links_to_bring_up*2):
+            continue
+        end_time = time.time()
+        sum_times_on += (end_time - start_time)
+    
+        print(f'link on time_{i} = {end_time - start_time}')
+
+        start_time = time.time()
+        for link in intf2_links:
+            subprocess.run(['ifconfig', link, 'down'])
+        while get_link_size(controller_name,controller_ip, rest_port) != existent_links:
+            continue
+        end_time = time.time()
+        sum_times_off += (end_time - start_time)
+        print(f'link off time_{i} = {end_time - start_time}')
+        time.sleep(random.randint(1,10))
+    print(f'link on avg time = {sum_times_on/10}')
+    print(f'link off  avgtime = {sum_times_off/10}')
+    #CLI(net)
+
+def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
+    sum_times_on, sum_times_off = 0,0
+    for i in range(0,10):
+        additional_hosts = []
+        num_hosts_to_add = hosts_to_add  # Number of additional hosts to add
+        switches_to_attach = [1,2,3,4,5,6]  # List of switches to attach the hosts to
+        attached_hosts = []  # List to store the attached host tuples (switch, port)
+        tuples = []
+        for j in range(num_hosts_to_add):
+            switch_index = random.choice(switches_to_attach)  # Choose a random switch to attach the host
+            switch = net.switches[switch_index - 1]
+            host = net.addHost(f'h{j}')
+            additional_hosts.append(host)
+            switch_port = len(switch.ports)  # Find the next available port on the switch
+            link = net.addLink(host, switch, port1=0, port2=switch_port)
+            interface_name = link.intf1.name  # Get the name of the host's interface connected to the switch
+            switch.attach(f's{switch_index}-eth{switch_port}')
+            attached_hosts.append((switch_index, switch_port))  # Store the switch and port tuple
+            if j == 0:
+                start_time = time.time()
+            tuples.append([switch_index,switch_port]) # this is only for floodlight
+            
+        
+        setup(controller_name,controller_ip,rest_port,tuples)
+        for host in additional_hosts:
+            host.cmd('dhclient &')    
+        while get_host_size(controller_name,controller_ip, rest_port) != num_hosts_to_add:
+            continue
+        end_time = time.time()
+        sum_times_on += (end_time - start_time)
+        print(f'host on time_{i} = {end_time - start_time}')
+
+        start_time = time.time()
+        for switch_index, switch_port in attached_hosts:
+            switch = net.switches[switch_index - 1]
+            switch.detach(f's{switch_index}-eth{switch_port}')
+        while get_host_size(controller_name,controller_ip, rest_port) != 0:
+            continue
+        end_time = time.time()
+        sum_times_off += (end_time - start_time)
+        print(f'host off time_{i} = {end_time - start_time}')
+        time.sleep(random.randint(1,10))
+    print(f'link on avg time = {sum_times_on/10}')
+    print(f'link off  avgtime = {sum_times_off/10}')
+    #CLI(net)    
 
 def compare_topology(topology, len_topology):
     # Check if the topology matches the deployed topology
