@@ -6,6 +6,7 @@ from scapy.all import *
 from scapy.contrib.openflow3 import OFPTPacketIn, OFPTPacketOut, OpenFlow3
 from scapy.contrib.lldp import LLDPDU
 from setup_dhcp import setup
+from mininet.cli import CLI
 
 
 
@@ -199,7 +200,7 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
         end_time = time.time()
         sum_times_on += (end_time - start_time)
         print(f'host on time_{i} = {end_time - start_time}')
-
+        time.sleep(5)
         start_time = time.time()
         for switch_index, switch_port in attached_hosts:
             switch = net.switches[switch_index - 1]
@@ -209,7 +210,7 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
         end_time = time.time()
         sum_times_off += (end_time - start_time)
         print(f'host off time_{i} = {end_time - start_time}')
-        time.sleep(random.randint(1,10))
+        time.sleep(5)
     print(f'link on avg time = {sum_times_on/10}')
     print(f'link off  avgtime = {sum_times_off/10}')
     #CLI(net)    
