@@ -2,7 +2,7 @@
   "apps": {
     "org.onosproject.dhcp" : {
       "dhcp" : {
-        "ip": "10.1.11.50",
+        "ip": "10.1.11.1",
         "mac": "ca:fe:ca:fe:ca:fe",
         "subnet": "255.255.252.0",
         "broadcast": "10.1.11.255",
@@ -14,8 +14,8 @@
         "rebind": "200",
         "delay": "2",
         "timeout": "150",
-        "startip": "10.1.11.51",
-        "endip": "10.1.11.100"
+        "startip": "10.1.11.2",
+        "endip": "10.1.11.254"
       }
     }
   }
