@@ -174,7 +174,8 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
     for i in range(0,10):
         additional_hosts = []
         num_hosts_to_add = hosts_to_add  # Number of additional hosts to add
-        switches_to_attach = [1,2,3,4,5,6]  # List of switches to attach the hosts to
+        switches_to_attach = list(range(1, len(net.switches)))  # List of switches to attach the hosts to
+        print(switches_to_attach)
         attached_hosts = []  # List to store the attached host tuples (switch, port)
         tuples = []
         for j in range(num_hosts_to_add):
