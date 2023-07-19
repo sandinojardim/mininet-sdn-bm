@@ -198,8 +198,8 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
             host.cmd('dhclient &')
         
         while get_host_size(controller_name,controller_ip, rest_port) != num_hosts_to_add:
-            for host in additional_hosts:
-                host.cmd('dhclient &')
+            #for host in additional_hosts:
+            #    host.cmd('dhclient &')
             time.sleep(1)
         end_time = time.time()
         sum_times_on += (end_time - start_time)
