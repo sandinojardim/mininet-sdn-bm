@@ -193,6 +193,7 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
             
         
         setup(controller_name,controller_ip,rest_port,tuples)
+        time.sleep(1)
         start_time = time.time()
         for host in additional_hosts:
             host.cmd('dhclient &')
