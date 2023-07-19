@@ -7,6 +7,8 @@ from scapy.contrib.openflow3 import OFPTPacketIn, OFPTPacketOut, OpenFlow3
 from scapy.contrib.lldp import LLDPDU
 from setup_dhcp import setup
 from mininet.cli import CLI
+from mininet.util import pmonitor
+
 
 
 
@@ -174,8 +176,7 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
     for i in range(0,10):
         additional_hosts = []
         num_hosts_to_add = hosts_to_add  # Number of additional hosts to add
-        switches_to_attach = list(range(1, len(net.switches)))  # List of switches to attach the hosts to
-        print(switches_to_attach)
+        switches_to_attach = list(range(1, len(net.switches)+1))  # List of switches to attach the hosts to
         attached_hosts = []  # List to store the attached host tuples (switch, port)
         tuples = []
         for j in range(num_hosts_to_add):
@@ -187,31 +188,57 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
             link = net.addLink(host, switch, port1=0, port2=switch_port)
             interface_name = link.intf1.name  # Get the name of the host's interface connected to the switch
             switch.attach(f's{switch_index}-eth{switch_port}')
-            attached_hosts.append((switch_index, switch_port))  # Store the switch and port tuple
-            if j == 0:
-                start_time = time.time()
+            attached_hosts.append((switch_index, switch_port))  # Store the switch and port tuple    
             tuples.append([switch_index,switch_port]) # this is only for floodlight
             
         
         setup(controller_name,controller_ip,rest_port,tuples)
+        time.sleep(2)
+        start_time = time.time()
         for host in additional_hosts:
-            host.cmd('dhclient &')    
+            # Run the dhclient command and capture its output
+            #file_name = f'{host.name}.txt'
+            #command = f'dhclient -v'
+            
+            # Start the command and capture its output
+            host.popen('dhclient', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            
+            # Store the popen object in the dictionary with the host as the key
+            #popen_objects[host] = popen_output
+
+        # Use pmonitor on the dictionary of popen objects
+        # for host, popen_output in pmonitor(popen_objects, timeoutms=500):
+        #     if isinstance(popen_output, str):  # Check if the output is a string
+        #         # Save the output to the corresponding file for each host
+        #         file_name = f'output/{host}.txt'
+        #         with open(file_name, 'a') as output_file:
+        #             output_file.write(popen_output.strip() + '\n')
+        #     elif popen_output is not None:
+        #         # Get the output line from the popen object
+        #         line = popen_output.stdout.readline().decode().strip()
+        #         if line:
+        #             # Save the output to the corresponding file for each host
+        #             file_name = f'dhclient_output_{host.name}.txt'
+        #             with open(file_name, 'a') as output_file:
+        #                 output_file.write(line + '\n')  
         while get_host_size(controller_name,controller_ip, rest_port) != num_hosts_to_add:
+            time.sleep(1)
             continue
         end_time = time.time()
         sum_times_on += (end_time - start_time)
         print(f'host on time_{i} = {end_time - start_time}')
-        time.sleep(5)
+        time.sleep(2)
         start_time = time.time()
         for switch_index, switch_port in attached_hosts:
             switch = net.switches[switch_index - 1]
             switch.detach(f's{switch_index}-eth{switch_port}')
         while get_host_size(controller_name,controller_ip, rest_port) != 0:
+            time.sleep(1)
             continue
         end_time = time.time()
         sum_times_off += (end_time - start_time)
         print(f'host off time_{i} = {end_time - start_time}')
-        time.sleep(5)
+        time.sleep(2)
     print(f'link on avg time = {sum_times_on/10}')
     print(f'link off  avgtime = {sum_times_off/10}')
     #CLI(net)    
