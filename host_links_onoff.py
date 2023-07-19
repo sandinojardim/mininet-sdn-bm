@@ -191,43 +191,20 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
             attached_hosts.append((switch_index, switch_port))  # Store the switch and port tuple    
             tuples.append([switch_index,switch_port]) # this is only for floodlight
             
-        if i == 0 and controller_name == 'onos':
-            setup(controller_name,controller_ip,rest_port,tuples)
-        time.sleep(2)
+        
+        setup(controller_name,controller_ip,rest_port,tuples)
         start_time = time.time()
         for host in additional_hosts:
-            # Run the dhclient command and capture its output
-            #file_name = f'{host.name}.txt'
-            #command = f'dhclient -v'
-            
-            # Start the command and capture its output
-            host.popen('dhclient', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            
-            # Store the popen object in the dictionary with the host as the key
-            #popen_objects[host] = popen_output
-
-        # Use pmonitor on the dictionary of popen objects
-        # for host, popen_output in pmonitor(popen_objects, timeoutms=500):
-        #     if isinstance(popen_output, str):  # Check if the output is a string
-        #         # Save the output to the corresponding file for each host
-        #         file_name = f'output/{host}.txt'
-        #         with open(file_name, 'a') as output_file:
-        #             output_file.write(popen_output.strip() + '\n')
-        #     elif popen_output is not None:
-        #         # Get the output line from the popen object
-        #         line = popen_output.stdout.readline().decode().strip()
-        #         if line:
-        #             # Save the output to the corresponding file for each host
-        #             file_name = f'dhclient_output_{host.name}.txt'
-        #             with open(file_name, 'a') as output_file:
-        #                 output_file.write(line + '\n')  
+            host.cmd('dhclient &')
+        
         while get_host_size(controller_name,controller_ip, rest_port) != num_hosts_to_add:
+            for host in additional_hosts:
+                host.cmd('dhclient &')
             time.sleep(1)
-            continue
         end_time = time.time()
         sum_times_on += (end_time - start_time)
         print(f'host on time_{i} = {end_time - start_time}')
-        time.sleep(2)
+        time.sleep(1)
         start_time = time.time()
         for switch_index, switch_port in attached_hosts:
             switch = net.switches[switch_index - 1]
@@ -238,7 +215,9 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
         end_time = time.time()
         sum_times_off += (end_time - start_time)
         print(f'host off time_{i} = {end_time - start_time}')
-        time.sleep(2)
+        for host in additional_hosts:
+            net.delHost(host)
+        time.sleep(1)
     print(f'link on avg time = {sum_times_on/10}')
     print(f'link off  avgtime = {sum_times_off/10}')
     #CLI(net)    
