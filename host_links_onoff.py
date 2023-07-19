@@ -191,8 +191,8 @@ def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
             attached_hosts.append((switch_index, switch_port))  # Store the switch and port tuple    
             tuples.append([switch_index,switch_port]) # this is only for floodlight
             
-        
-        setup(controller_name,controller_ip,rest_port,tuples)
+        if i == 0 and controller_name == 'onos':
+            setup(controller_name,controller_ip,rest_port,tuples)
         time.sleep(2)
         start_time = time.time()
         for host in additional_hosts:
