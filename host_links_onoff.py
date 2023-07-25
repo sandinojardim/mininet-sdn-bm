@@ -130,31 +130,17 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
             response = requests.get(url, headers=headers, auth=auth)
             if response.status_code == 200:
                 data = response.json()
-                if 'node' in data['nodes']:
-                    nodes = data['nodes']['node']
-                    link_count = 0
-                    host_count = 0
-                    host_macs = set()  # To keep track of unique MAC addresses
-                    for node in nodes:
-                        node_connectors = node.get('node-connector', [])
-                        for connector in node_connectors:
-                            state = connector.get('flow-node-inventory:state', {})
-                            link_down = state.get('link-down', False)
-                            if not link_down:
-                                link_count += 1
-                            if 'address-tracker:addresses' in connector and connector['address-tracker:addresses']:
-                                addresses = connector['address-tracker:addresses']
-                                for addr in addresses:
-                                    mac = addr['mac']
-                                    host_macs.add(mac)
-                    host_count = len(host_macs)
-                    host_count = 0 if (link_count-host_count == link_count) else link_count-host_count
-                    print(host_count)
-                    return host_count
-                else:
-                    print('nothing')
-            else:
-                print(f"Error: {response.status_code} - {response.text}")
+                host_count = 0
+                if "network-topology" in data and "topology" in data["network-topology"]:
+                    for topology in data["network-topology"]["topology"]:
+                        if topology["topology-id"] == "flow:1":  # Adjust topology-id based on your setup
+                            nodes = topology.get("node", [])
+                            for node in nodes:
+                                if "node-id" in node and node["node-id"].startswith("host:"):
+                                    host_count += 1
+
+                # Step 4: Count the number of host devices
+                return host_count
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
 
