@@ -149,6 +149,7 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
                                     host_macs.add(mac)
                     host_count = len(host_macs)
                     host_count = 0 if (link_count-host_count == link_count) else link_count-host_count
+                    print(host_count)
                     return host_count
                 else:
                     print('nothing')
