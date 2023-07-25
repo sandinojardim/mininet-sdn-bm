@@ -132,17 +132,23 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
                 data = response.json()
                 if 'node' in data['nodes']:
                     nodes = data['nodes']['node']
+                    link_count = 0
                     host_count = 0
                     host_macs = set()  # To keep track of unique MAC addresses
                     for node in nodes:
                         node_connectors = node.get('node-connector', [])
                         for connector in node_connectors:
+                            state = connector.get('flow-node-inventory:state', {})
+                            link_down = state.get('link-down', False)
+                            if not link_down:
+                                link_count += 1
                             if 'address-tracker:addresses' in connector and connector['address-tracker:addresses']:
                                 addresses = connector['address-tracker:addresses']
                                 for addr in addresses:
                                     mac = addr['mac']
                                     host_macs.add(mac)
                     host_count = len(host_macs)
+                    host_count = 0 if (link_count-host_count == link_count) else link_count-host_count
                     return host_count
                 else:
                     print('nothing')
