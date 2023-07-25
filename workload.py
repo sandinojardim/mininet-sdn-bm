@@ -127,7 +127,7 @@ if __name__ == '__main__':
     input_param, args = parser('workload')
     print(input_param)
     topology, num_sw = generate_topology(input_param[0],input_param[1])
-    client_links = []
+    client_links = [[1,1],[2,1],[3,1]]
     server_links = []
     cl, srv, sw, additional_links = generate_network(topology, num_sw, client_links, server_links,input_param[2])
 
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         
 
     if args.hosts:
-        on_off_hosts(args.hosts_to_add, net, args.controller_name, args.controller_ip, args.rest_port)
+        on_off_hosts(client_links, args.hosts_to_add, net, args.controller_name, args.controller_ip, args.rest_port)
         
     
     net.stop()

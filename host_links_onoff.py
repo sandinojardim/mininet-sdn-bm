@@ -106,7 +106,8 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
         response2 = requests.get(url2, headers=headers,auth=('onos','rocks'))
         host_Data = response2.json()
         hosts = len(host_Data['hosts'])
-        return hosts
+        hosts_with_ip = sum(1 for h in host_Data['hosts'] if len(h['ipAddresses']) == 1)
+        return hosts_with_ip
     elif controller == 'floodlight':
         url3 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/device/'
         try:
@@ -126,15 +127,25 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
         }
         auth = ('admin', 'admin')
         try:
-            response = requests.get(url,headers=headers,auth=auth)
+            response = requests.get(url, headers=headers, auth=auth)
             if response.status_code == 200:
                 data = response.json()
                 if 'node' in data['nodes']:
                     nodes = data['nodes']['node']
-                    links = sum(len(node.get('node-connector', [])) for node in nodes)
-                    return (links-len(nodes))#odl adds one local link for each sw
+                    host_count = 0
+                    host_macs = set()  # To keep track of unique MAC addresses
+                    for node in nodes:
+                        node_connectors = node.get('node-connector', [])
+                        for connector in node_connectors:
+                            if 'address-tracker:addresses' in connector and connector['address-tracker:addresses']:
+                                addresses = connector['address-tracker:addresses']
+                                for addr in addresses:
+                                    mac = addr['mac']
+                                    host_macs.add(mac)
+                    host_count = len(host_macs)
+                    return host_count
                 else:
-                    return 0
+                    print('nothing')
             else:
                 print(f"Error: {response.status_code} - {response.text}")
         except requests.exceptions.RequestException as e:
@@ -171,7 +182,45 @@ def on_off_link(links_to_add, additional_links, controller_name, controller_ip, 
     print(f'link off  avgtime = {sum_times_off/10}')
     #CLI(net)
 
-def on_off_hosts(hosts_to_add, net, controller_name, controller_ip, rest_port):
+def on_off_hosts(hosts_switches, hosts_to_on, net, controller_name, controller_ip, rest_port):
+    sum_times_on, sum_times_off = 0,0
+    for i in range(0,10):
+        if i > 0:
+            for j in range(hosts_to_on):
+                tuple = hosts_switches[j]
+                switch = net.switches[tuple[0]-1]
+                switch.attach(f's{tuple[0]}-eth{tuple[1]}')
+
+        
+        CLI(net)
+        for j in range(hosts_to_on):
+            host = net.hosts[j]
+            next_host = net.hosts[(j + 1) % hosts_to_on]
+            print(host.cmd(f'ping -c 1 {next_host.IP()} &'))
+            
+        start_time = time.time()
+        while get_host_size(controller_name,controller_ip, rest_port) != hosts_to_on:
+            time.sleep(1)
+
+        end_time = time.time()
+        sum_times_on += (end_time - start_time)
+        print(f'host on time_{i} = {end_time - start_time}')
+
+        start_time = time.time()
+        for j in range(hosts_to_on):
+            tuple = hosts_switches[j]
+            switch = net.switches[tuple[0]-1]
+            switch.detach(f's{tuple[0]}-eth{tuple[1]}')
+        while get_host_size(controller_name,controller_ip, rest_port) != 0:
+            time.sleep(1)
+            continue
+        end_time = time.time()
+        sum_times_off += (end_time - start_time)
+        print(f'host off time_{i} = {end_time - start_time}')
+    print(f'link on avg time = {sum_times_on/10}')
+    print(f'link off  avgtime = {sum_times_off/10}')
+
+def on_off_hosts_dhcp(hosts_to_add, net, controller_name, controller_ip, rest_port):
     sum_times_on, sum_times_off = 0,0
     for i in range(0,10):
         additional_hosts = []
