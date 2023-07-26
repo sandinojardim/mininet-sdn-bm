@@ -138,7 +138,7 @@ if __name__ == '__main__':
     input_param, args = parser('workload')
     print(input_param)
     topology, num_sw = generate_topology(input_param[0],input_param[1])
-    client_links = assign_hosts_to_switches(num_sw, args.hosts_to_add)
+    client_links = [[1,1],[1,2],[1,3]]#assign_hosts_to_switches(num_sw, args.hosts_to_add)
     print(client_links)
     server_links = []
     cl, srv, sw, additional_links = generate_network(topology, num_sw, client_links, server_links,input_param[2])
