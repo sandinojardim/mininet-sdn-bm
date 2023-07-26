@@ -12,6 +12,17 @@ from host_links_onoff import on_off_link, on_off_hosts
 
 net = Mininet(controller=RemoteController, switch=OVSSwitch)
 
+def assign_hosts_to_switches(num_sw, num_clients):
+    client_connections = []
+
+    for client_id in range(1, num_clients + 1):
+        switch_id = random.randint(1, num_sw)
+        port = random.randint(1, num_sw)  # You can modify this to use the actual number of ports per switch
+
+        client_connections.append([switch_id, port])
+
+    return client_connections
+
 def generate_topology(topology_type, topology_parameters):
     if topology_type == 'star':
         num_switches, hub_switch = topology_parameters
@@ -127,7 +138,7 @@ if __name__ == '__main__':
     input_param, args = parser('workload')
     print(input_param)
     topology, num_sw = generate_topology(input_param[0],input_param[1])
-    client_links = [[1,1],[2,1],[3,1]]
+    client_links = assign_hosts_to_switches(num_sw, args.hosts_to_add)
     server_links = []
     cl, srv, sw, additional_links = generate_network(topology, num_sw, client_links, server_links,input_param[2])
 

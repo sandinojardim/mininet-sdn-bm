@@ -121,7 +121,7 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
     elif controller == 'odl':
-        url = f'http://{CONTROLLER_IP}:{REST_PORT}/restconf/operational/opendaylight-inventory:nodes'
+        url = f"http://{CONTROLLER_IP}:{REST_PORT}/restconf/operational/network-topology:network-topology"
         headers = {
             'Accept': 'application/json',
         }
@@ -138,8 +138,8 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
                             for node in nodes:
                                 if "node-id" in node and node["node-id"].startswith("host:"):
                                     host_count += 1
-
                 # Step 4: Count the number of host devices
+                print (host_count)
                 return host_count
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
@@ -191,7 +191,7 @@ def on_off_hosts(hosts_switches, hosts_to_on, net, controller_name, controller_i
             next_host = net.hosts[(j + 1) % hosts_to_on]
             print(host.cmd(f'ping -c 1 {next_host.IP()} &'))
             
-        start_time = time.time()
+        start_time = time.time() #CHANGE IT TO START WHEN DETECT THE FIRST PACKET_IN MESSAGE ARIVING AT CONTROLLER
         while get_host_size(controller_name,controller_ip, rest_port) != hosts_to_on:
             time.sleep(1)
 
