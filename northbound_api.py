@@ -147,7 +147,6 @@ def evaluate_max_throughput(controller, CONTROLLER_IP, REST_PORT, max_requests, 
             max_throughput = throughput
 
         current_requests += step
-        time.sleep(10)
 
     return max_throughput
 
