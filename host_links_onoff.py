@@ -185,11 +185,11 @@ def on_off_hosts(hosts_switches, hosts_to_on, net, controller_name, controller_i
                 switch.attach(f's{tuple[0]}-eth{tuple[1]}')
 
         
-        CLI(net)
+        #CLI(net)
         for j in range(hosts_to_on):
             host = net.hosts[j]
             next_host = net.hosts[(j + 1) % hosts_to_on]
-            print(host.cmd(f'ping -c 1 {next_host.IP()} &'))
+            host.cmd(f'ping -c 1 {next_host.IP()} &')
             
         start_time = time.time() #CHANGE IT TO START WHEN DETECT THE FIRST PACKET_IN MESSAGE ARIVING AT CONTROLLER
         while get_host_size(controller_name,controller_ip, rest_port) != hosts_to_on:
