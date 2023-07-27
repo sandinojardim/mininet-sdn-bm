@@ -14,12 +14,20 @@ net = Mininet(controller=RemoteController, switch=OVSSwitch)
 
 def assign_hosts_to_switches(num_sw, num_clients):
     client_connections = []
+    ports_per_switch = {}  # Dictionary to keep track of the next available port for each switch
 
     for client_id in range(1, num_clients + 1):
         switch_id = random.randint(1, num_sw)
-        port = random.randint(1, num_sw)  # You can modify this to use the actual number of ports per switch
 
+        # If the switch is not in the dictionary yet, add it with port number 1
+        if switch_id not in ports_per_switch:
+            ports_per_switch[switch_id] = 1
+
+        port = ports_per_switch[switch_id]
         client_connections.append([switch_id, port])
+
+        # Increment the port for the selected switch for the next iteration
+        ports_per_switch[switch_id] += 1
 
     return client_connections
 
