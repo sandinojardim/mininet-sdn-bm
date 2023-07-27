@@ -186,7 +186,7 @@ def on_off_hosts(hosts_switches, hosts_to_on, net, controller_name, controller_i
                 switch.attach(f's{tuple[0]}-eth{tuple[1]}')
 
         
-        CLI(net)
+        time.sleep(5)
         for j in range(hosts_to_on):
             host = net.hosts[j]
             next_host = net.hosts[(j + 1) % hosts_to_on]
@@ -206,7 +206,7 @@ def on_off_hosts(hosts_switches, hosts_to_on, net, controller_name, controller_i
             switch = net.switches[tuple[0]-1]
             print(f'detaching s{tuple[0]}-eth{tuple[1]} from switch {switch}')
             switch.detach(f's{tuple[0]}-eth{tuple[1]}')
-        CLI(net)
+        time.sleep(5)
         while get_host_size(controller_name,controller_ip, rest_port) != 0:
             time.sleep(1)
             continue
