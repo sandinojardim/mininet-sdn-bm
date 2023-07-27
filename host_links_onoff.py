@@ -186,7 +186,7 @@ def on_off_hosts(hosts_switches, hosts_to_on, net, controller_name, controller_i
                 switch.attach(f's{tuple[0]}-eth{tuple[1]}')
 
         
-        #time.sleep(5)
+        CLI(net)
         for j in range(hosts_to_on):
             host = net.hosts[j]
             next_host = net.hosts[(j + 1) % hosts_to_on]
@@ -199,16 +199,13 @@ def on_off_hosts(hosts_switches, hosts_to_on, net, controller_name, controller_i
         end_time = time.time()
         sum_times_on += (end_time - start_time)
         print(f'host on time_{i} = {end_time - start_time}')
-
+        CLI(net)
         start_time = time.time()
         for j in range(hosts_to_on):
             tuple = hosts_switches[j]
             switch = net.switches[tuple[0]-1]
             switch.detach(f's{tuple[0]}-eth{tuple[1]}')
-            while get_host_size(controller_name,controller_ip, rest_port) != hosts_to_on - (j+1):
-                time.sleep(1)
-                continue
-        #time.sleep(5)
+
         while get_host_size(controller_name,controller_ip, rest_port) != 0:
             time.sleep(1)
             continue
