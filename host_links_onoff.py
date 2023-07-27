@@ -107,8 +107,8 @@ def get_host_size(controller,CONTROLLER_IP, REST_PORT):
         host_Data = response2.json()
         hosts = len(host_Data['hosts'])
         hosts_with_ip = sum(1 for h in host_Data['hosts'] if len(h['ipAddresses']) == 1)
-        print(hosts_with_ip)
-        return hosts_with_ip
+        #print(hosts_with_ip)
+        return hosts
     elif controller == 'floodlight':
         url3 = f'http://{CONTROLLER_IP}:{REST_PORT}/wm/device/'
         try:
